@@ -1552,3 +1552,132 @@ DHCP gir klienten blant annet IP-adresse, gateway og DNS-server, men en riktig D
 Derfor måtte jeg også teste kommunikasjonen med ping og kontrollere DNS og HTTP separat.
 
 Jeg lærte forskjellen mellom en klient som får adresse automatisk og en server som bruker fast IP-adresse.
+
+
+## 17. DNS og HTTP på SERVER01
+
+### 17.1 Hvorfor jeg brukte DNS og HTTP
+
+I FjordTek AS skulle klientene kunne åpne en enkel intranettside som lå på SERVER01.
+
+Jeg ville at brukerne skulle kunne åpne siden med et navn, i stedet for å måtte huske IP-adressen til serveren.
+
+Derfor brukte jeg DNS og HTTP.
+
+DNS brukes til å finne IP-adressen som hører til et domenenavn, mens HTTP brukes til å hente nettsider fra en webserver.
+
+### 17.2 Nettverksinnstillinger på SERVER01
+
+Jeg brukte SERVER01 i Cisco Packet Tracer som både DNS-server og webserver.
+
+Serveren hadde disse innstillingene:
+
+| Innstilling | Verdi |
+|---|---|
+| IP Configuration | Static |
+| IPv4 Address | 192.168.30.10 |
+| Subnet Mask | 255.255.255.0 |
+| Default Gateway | 192.168.30.1 |
+| DNS Server | 192.168.30.10 |
+
+Jeg ga serveren fast IP-adresse fordi klientenes DNS-innstillinger skulle peke til denne adressen.
+
+SERVER01 lå i VLAN 30, som var servernettverket på hovedkontoret.
+
+### 17.3 Konfigurering av DNS
+
+Jeg åpnet SERVER01 i Packet Tracer og gikk til:
+
+`Services → DNS`
+
+Jeg aktiverte DNS-tjenesten ved å velge **On**.
+
+Deretter la jeg inn en DNS-post av typen A Record:
+
+| Innstilling | Verdi |
+|---|---|
+| Name | intranett.fjordtek.local |
+| Type | A Record |
+| Address | 192.168.30.10 |
+
+Denne posten gjorde at navnet `intranett.fjordtek.local` kunne oversettes til serverens IPv4-adresse.
+
+Jeg kontrollerte at posten lå i listen over Resource Records.
+
+### 17.4 Konfigurering av HTTP
+
+Deretter gikk jeg til:
+
+`Services → HTTP`
+
+Jeg kontrollerte at HTTP-tjenesten var aktivert.
+
+Dette var innstillingene som ble dokumentert:
+
+- HTTP: On
+- HTTPS: On
+- Filen `index.html` fantes på serveren.
+
+Jeg brukte HTTP for at klientene skulle kunne åpne en nettside på SERVER01.
+
+HTTPS var også aktivert, men jeg gjennomførte ikke en egen funksjonstest av HTTPS. Derfor dokumenterer jeg HTTP som den testede webtjenesten.
+
+### 17.5 Testing med IP-adresse
+
+Jeg testet tilgang til webserveren fra klienter i bedriftsnettverket.
+
+Jeg åpnet Web Browser i Packet Tracer og brukte serverens IP-adresse:
+
+```text
+http://192.168.30.10
+```
+
+Jeg registrerte i arbeidsloggen at jeg fikk åpnet siden fra PC-ADMIN og PC-SALG.
+
+Denne testen var viktig fordi jeg ville kontrollere om klientene kunne nå webserveren uten å bruke DNS-navnet.
+
+Jeg har ikke et eget skjermbilde av nettsiden i nettleseren fra denne testen. Resultatet er derfor basert på det jeg skrev i arbeidsloggen.
+
+### 17.6 Testing med DNS-navn
+
+Etterpå testet jeg tilgang til samme server med DNS-navnet:
+
+```text
+http://intranett.fjordtek.local
+```
+
+Jeg registrerte at testen fungerte fra PC-ADMIN og PC-SALG.
+
+For at dette skal fungere, må klienten kunne kontakte DNS-serveren og få riktig IP-adresse tilbake.
+
+Deretter må klienten kunne kommunisere med webserveren på den adressen.
+
+Jeg hadde konfigurert klientene på hovedkontoret til å bruke DNS-serveren `192.168.30.10`.
+
+Denne testen hjalp meg å forstå hvorfor riktig DNS-konfigurasjon er viktig, selv om den grunnleggende IP-kommunikasjonen allerede fungerer.
+
+### 17.7 Kontroll med Simulation Mode
+
+Jeg brukte også Simulation Mode for å undersøke DNS- og HTTP-trafikken mellom PC-ADMIN og SERVER01.
+
+I DNS-testen kunne jeg følge meldinger fra PC-ADMIN gjennom SW-ADMIN, SW-CORE-HQ og SW-SERVER til SERVER01, og se trafikk i motsatt retning.
+
+I HTTP-testen kunne jeg se en forespørsel fra PC-ADMIN til SERVER01 og et svar som gikk tilbake til klienten.
+
+Dette var dokumentert med egne skjermbilder fra Simulation Mode.
+
+Jeg beskriver selve pakkeforløpet mer detaljert i neste kapittel.
+
+### 17.8 Hva jeg lærte
+
+Jeg lærte at DNS og HTTP har forskjellige oppgaver, selv om de brukes sammen når en bruker åpner en nettside med et domenenavn.
+
+DNS hjelper klienten å finne riktig IP-adresse, mens HTTP brukes til å hente innhold fra webserveren.
+
+Jeg lærte også at det er nyttig å teste en tjeneste med IP-adressen først og deretter med DNS-navnet.
+
+Hvis nettsiden fungerer med IP-adresse, men ikke med navn, er det naturlig å undersøke DNS-konfigurasjonen. Det betyr likevel ikke at DNS alltid er den eneste mulige feilkilden.
+
+Jeg fikk brukt både DNS og HTTP i bedriftsnettverket og undersøkte kommunikasjonen i Simulation Mode.
+
+Testene mine viste at tjenestene fungerte på de forbindelsene jeg undersøkte. Jeg gjennomførte ikke en egen HTTPS-test eller en fullstendig test fra alle klientene.
