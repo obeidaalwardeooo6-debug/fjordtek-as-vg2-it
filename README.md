@@ -869,3 +869,51 @@ Jeg fikk ping til å fungere igjen, men dette var ikke en fullstendig test av al
 SMB-forbindelsen ble undersøkt separat med `Get-SmbConnection`, Nmap og Wireshark.
 
 Jeg mangler fortsatt et fullstendig skjermbilde av den endelige IP-konfigurasjonen på SERVER01 etter reinstallasjonen.
+
+
+
+## 12. Oppsummering av det fysiske nettverket
+
+Etter at jeg hadde konfigurert og testet det fysiske nettverket, gikk jeg tilbake til kravspesifikasjonen for å se hvor langt jeg hadde kommet.
+
+Jeg sammenlignet kravene med testresultatene og arbeidsloggen min fra 20.–22.10.2026.
+
+### 12.1 Status på kravene
+
+| Krav | Hva jeg fikk til | Dokumentasjon |
+|---|---|---|
+| K1 – Kommunikasjon mellom CLIENT01 og SERVER01 | Jeg fikk fire ping-svar uten pakketap fra klienten til serveren. | Resultatet er loggført, men et eget ping-bilde ligger ikke i bildemappen. |
+| K2 – Fast IP på SERVER01 | Jeg satte ifølge arbeidsloggen serveradressen til `192.168.50.10/24`. | Jeg mangler fullstendig skjermbilde av `ipconfig /all` etter reinstallasjonen. |
+| K3 – DHCP til CLIENT01 | Klienten fikk `192.168.50.100/24` fra DHCP-serveren `192.168.50.1`. | IP-innstillingene er registrert i arbeidsloggen. |
+| K4 – Tjeneste på SERVER01 | Jeg fikk kontakt med den delte mappen `Felles` ved hjelp av SMB. | SMB-forbindelsen og trafikken er dokumentert. Eget bilde av testfilen mangler. |
+| K8 – DHCP-fornyelse og kommunikasjon | Jeg fornyet IP-innstillingene og fikk senere fire ping-svar fra serveren uten pakketap. | Testene er loggført, men hele forløpet er ikke dokumentert i ett sammenhengende skjermbilde. |
+
+### 12.2 Hva som fungerte
+
+Jeg fikk koblet sammen ruteren, switchen, serveren og klienten.
+
+Jeg fikk også testet både statisk IP og DHCP på CLIENT01.
+
+Ping-testene viste at klienten kunne nå både R1 og SERVER01. Jeg fikk dessuten undersøkt SMB med PowerShell, Nmap og Wireshark.
+
+Under feilsøkingen opplevde jeg blant annet at ICMP ble blokkert av Windows Firewall, og at nettverkstilkoblingen forsvant da jeg fjernet USB-Ethernet-adapteren. Jeg fikk rettet begge problemene og kontrollert forbindelsen etterpå.
+
+### 12.3 Hva jeg ikke kunne dokumentere fullt ut
+
+Jeg mangler noen direkte skjermbilder fra den fysiske laben.
+
+Det gjelder særlig den endelige statiske IP-konfigurasjonen på SERVER01, testfilen i den delte mappen og den komplette DHCP-fornyelsen.
+
+Jeg har ikke lenger tilgang til skoleutstyret for å ta nye bilder. Derfor bruker jeg testresultatene jeg registrerte under arbeidet, og forklarer hvilke direktebevis som mangler.
+
+Jeg vil ikke bruke skjermbilder fra Packet Tracer som bevis for innstillinger på den fysiske serveren.
+
+### 12.4 Min vurdering
+
+Jeg mener at jeg fikk det grunnleggende fysiske nettverket til å fungere.
+
+Jeg lærte mye om IP-adressering, DHCP, servertilkobling og bruk av forskjellige testverktøy. Det viktigste var at jeg fikk erfaring med å finne feil og kontrollere om løsningen faktisk fungerte.
+
+Samtidig ser jeg at jeg burde tatt bedre vare på enkelte skjermbilder underveis.
+
+I den samlede akseptansetesten skal jeg bruke både kravspesifikasjonen og de faktiske resultatene for å vurdere hva jeg kan dokumentere som bestått, og hva som fortsatt har mangler.
