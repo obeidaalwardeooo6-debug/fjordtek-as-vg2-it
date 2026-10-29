@@ -182,3 +182,70 @@ Ruteren hadde adressen `192.168.50.1` og fungerte som standard gateway for enhet
 Jeg brukte samme subnett på klienten og serveren fordi de skulle kommunisere i det samme lokale nettverket.
 
 Etter konfigureringen testet jeg forbindelsen med ping. Resultatene fra disse testene dokumenterer jeg i testdelen av rapporten.
+
+
+## 5. Testing av fysisk nettverk
+
+Etter at jeg hadde koblet sammen utstyret og konfigurert IP-adressene, begynte jeg å teste nettverket.
+
+Jeg ville først finne ut om CLIENT01 hadde fått riktige nettverksinnstillinger. Deretter testet jeg om klienten kunne kommunisere med ruteren og SERVER01.
+
+### 5.1 Kontroll av IP-adresse
+
+På CLIENT01 brukte jeg kommandoen:
+
+`ipconfig /all`
+
+Jeg brukte denne kommandoen for å kontrollere IP-adressen, subnettmasken og standard gateway.
+
+CLIENT01 fikk IP-adressen `192.168.50.100`, som ligger innenfor DHCP-området jeg hadde konfigurert på ruteren.
+
+Dette viste at klienten hadde fått en adresse fra riktig nettverk.
+
+### 5.2 Ping til ruteren
+
+Jeg åpnet kommandolinjen (CMD) på CLIENT01 og kjørte:
+
+`ping 192.168.50.1`
+
+Jeg ville kontrollere at klienten hadde kontakt med ruteren på det lokale nettverket.
+
+**Resultat fra testen:**
+- Pakker sendt: 4
+- Pakker mottatt: 4
+- Pakketap: 0 %
+
+Ruteren svarte på alle fire forespørslene. Dette viste at CLIENT01 kunne nå ruteren med ICMP.
+
+### 5.3 Ping til SERVER01
+
+Etterpå testet jeg forbindelsen mellom klienten og serveren:
+
+`ping 192.168.50.10`
+
+SERVER01 hadde IP-adressen `192.168.50.10`.
+
+**Resultat fra testen:**
+- Pakker sendt: 4
+- Pakker mottatt: 4
+- Pakketap: 0 %
+
+Jeg fikk svar fra SERVER01 på alle fire forespørslene.
+
+Dette viste at klienten og serveren kunne kommunisere med ICMP da testen ble gjennomført. Det betydde ikke nødvendigvis at alle tjenestene på serveren fungerte. Derfor måtte jeg teste fildeling separat.
+
+### 5.4 Hva jeg fant ut
+
+Resultatene viste at den grunnleggende nettverksforbindelsen fungerte på tidspunktet jeg testet.
+
+Jeg hadde fått riktig IP-adresse på klienten, og jeg kunne nå både ruteren og serveren.
+
+Jeg lærte også at en vellykket ping ikke betyr at alle nettverkstjenester fungerer. En server kan svare på ping selv om for eksempel fildeling er blokkert av brannmuren.
+
+Dette ble viktig senere da jeg jobbet med SMB og Windows-brannmuren.
+
+### 5.5 Begrensning i dokumentasjonen
+
+Jeg har testresultater fra arbeidet med det fysiske nettverket. Windows Server ble senere installert på nytt, og jeg har ikke en fullstendig sluttkontroll av serverens nettverksinnstillinger etter reinstallasjonen.
+
+Derfor skiller jeg mellom testene jeg faktisk gjennomførte, og det jeg ikke fikk kontrollert på nytt.
