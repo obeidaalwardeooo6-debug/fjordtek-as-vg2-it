@@ -2139,6 +2139,69 @@ Det jeg syntes var mest nyttig med Simulation Mode, var at jeg kunne følge pakk
 Samtidig forstår jeg at Simulation Mode er en simulering. Resultatene viser hvordan nettverket fungerte i Packet Tracer under testene, men er ikke målinger fra et fysisk bedriftsnettverk.
 
 
+### Skjermbilder fra Simulation Mode
+
+**Test 1 – ARP mellom to klienter i VLAN 10**
+
+Jeg brukte PC-ADMIN2 og PC-ADMIN for å undersøke ARP-trafikk i samme lokale nettverk.
+
+Bildet viser ARP-hendelser gjennom SW-ADMIN. En ARP-melding ble også videresendt mot SW-CORE-HQ.
+
+![ARP mellom klienter i VLAN 10](images/packet-tracer/11-simulation-arp-samme-vlan10.png)
+
+**ICMP mellom klientene i VLAN 10**
+
+Etter ARP-hendelsene kunne jeg følge ICMP-trafikken mellom PC-ADMIN2 og PC-ADMIN.
+
+![ICMP mellom PC-ADMIN2 og PC-ADMIN](images/packet-tracer/12-simulation-icmp-samme-vlan10.png)
+
+Dette viste hvordan klientene kunne kommunisere innenfor samme VLAN.
+
+**Test 2 – ICMP fra Administrasjon til Salg**
+
+Jeg fulgte ICMP-trafikken fra PC-ADMIN til PC-SALG gjennom SW-CORE-HQ, R1-HQ og R2-SALG.
+
+![ICMP fra Administrasjon til Salg](images/packet-tracer/13-simulation-icmp-admin-til-salg.png)
+
+**ICMP-svar fra Salg til Administrasjon**
+
+Jeg kunne også se ICMP-svaret gå tilbake gjennom nettverket.
+
+Event List viste at svaret kom tilbake til PC-ADMIN ved simuleringstid 0.012 s.
+
+![ICMP-svar fra Salg til Administrasjon](images/packet-tracer/14-simulation-icmp-retur-salg-til-admin.png)
+
+Disse bildene dokumenterer både forespørselen og svartrafikken mellom de to nettverkene.
+
+**Test 3 – DNS mellom PC-ADMIN og SERVER01**
+
+Jeg undersøkte DNS-trafikken mellom PC-ADMIN og SERVER01.
+
+Bildet viser DNS-hendelser via SW-ADMIN, SW-CORE-HQ og SW-SERVER.
+
+![DNS-trafikk mellom PC-ADMIN og SERVER01](images/packet-tracer/15-simulation-dns-admin-server01.png)
+
+Dette er et bilde av hendelseslisten. DNS-konfigurasjonen og A-posten på SERVER01 er dokumentert i kapittel 17.
+
+**HTTP Request og Response**
+
+Jeg fulgte HTTP-trafikken mellom PC-ADMIN og SERVER01.
+
+Bildet viser forespørselen mot serveren og svartrafikken tilbake til klienten.
+
+![HTTP Request og Response i Simulation Mode](images/packet-tracer/16-simulation-http-request-og-svar.png)
+
+Bildet dokumenterer HTTP-trafikk, men viser ikke alene den ferdige nettsiden i nettleseren.
+
+**Ekstra test – ARP mellom PC-SALG og R2-SALG**
+
+Jeg undersøkte også ARP-trafikk fra PC-SALG mot den lokale gatewayen på R2-SALG.
+
+![ARP mellom PC-SALG og R2-SALG](images/packet-tracer/29-simulation-arp-pc-salg-r2-salg.png)
+
+Denne testen hjalp meg å forstå hvordan en klient finner MAC-adressen til gatewayen før den sender trafikk til andre IP-nettverk.
+
+
 ## 19. Telnet som kontrollert labøvelse
 
 ### 19.1 Hvorfor jeg testet Telnet
@@ -2277,6 +2340,47 @@ Jeg fikk erfaring med å koble til R2-SALG fra en klient, logge inn og bruke en 
 Jeg lærte også at det ikke er nok å få en tjeneste til å fungere. Jeg må vurdere om tjenesten er sikker, og om den skal være aktiv etter at testen er ferdig.
 
 Denne øvelsen gjorde det lettere for meg å forstå forskjellen mellom å teste en eldre protokoll i et laboratorium og å velge en sikker løsning i et bedriftsnettverk.
+
+
+### Skjermbilder fra Telnet-øvelsen
+
+**Telnet fra PC-SALG til R2-SALG**
+
+Jeg testet fjerninnlogging fra PC-SALG med kommandoen:
+
+`telnet 192.168.40.1`
+
+Det første forsøket åpnet forbindelsen, men passordinnloggingen ble ikke fullført før tidsfristen gikk ut.
+
+På det andre forsøket fikk jeg tilgang til kommandolinjen på R2-SALG.
+
+![Telnet-innlogging fra PC-SALG](images/packet-tracer/17-telnet-innlogging-pc-salg-r2.png)
+
+**Kontroll av ruterens grensesnitt**
+
+Etter innloggingen brukte jeg `enable` og `show ip interface brief`.
+
+Bildet viser blant annet at GigabitEthernet0/0 (`192.168.40.1`) og GigabitEthernet0/1 (`10.0.0.2`) var up/up.
+
+![Show ip interface brief på R2-SALG](images/packet-tracer/18-telnet-r2-show-ip-interface-brief.png)
+
+**Deaktivering av Telnet og lagring**
+
+Etter øvelsen endret jeg VTY-innstillingene på R2-SALG med blant annet:
+
+`line vty 0 4`
+
+`transport input none`
+
+`no password`
+
+Deretter brukte jeg `copy running-config startup-config`.
+
+Bildet viser at konfigurasjonen ble lagret med `[OK]`.
+
+![Endring av VTY-innstillinger og lagring](images/packet-tracer/19-telnet-deaktivert-og-lagret-r2.png)
+
+Bildet dokumenterer endringene og lagringen. Jeg gjennomførte ikke en separat test som viste at en ny Telnet-tilkobling ble avvist etterpå.
 
 
 ## 20. Feilsøking og kontrolltester i Packet Tracer
@@ -2439,6 +2543,41 @@ Selv om ping fungerte ved andre forsøk fra PC-SALG, visste jeg ikke sikkert hvo
 Det viktigste jeg tar med meg, er at feilsøking handler om å undersøke symptomer, bruke riktige verktøy, teste mulige løsninger og kontrollere resultatene.
 
 Jeg vil også skille mellom det jeg har bevist gjennom tester, og det jeg bare har en mulig forklaring på.
+
+
+### Skjermbilder fra feilsøking og kontrolltester
+
+**SW-CORE-HQ til R1-HQ – Ping etter retting av tilkoblingen**
+
+Jeg opplevde først at SW-CORE-HQ ikke fikk kontakt med R1-HQ.
+
+I arbeidsloggen registrerte jeg at kabelen var koblet til feil port på SW-CORE-HQ. Jeg rettet tilkoblingen til GigabitEthernet0/1 og testet på nytt:
+
+`ping 10.0.0.5`
+
+Testen ga fem svar av fem forsøk, med 100 % suksessrate.
+
+![Ping fra SW-CORE-HQ til R1-HQ](images/packet-tracer/02-sw-core-ping-r1-5-av-5.png)
+
+Skjermbildet dokumenterer den vellykkede testen etter omkoblingen. Den mislykkede testen før rettingen er beskrevet i arbeidsloggen, men har ikke et eget skjermbilde.
+
+**PC-SALG til SERVER01 – To forskjellige pingresultater**
+
+Jeg testet forbindelsen fra PC-SALG til SERVER01 med:
+
+`ping 192.168.30.10`
+
+Den første testen ga ett svar og tre tapte pakker, altså 75 % pakketap.
+
+Jeg gjentok testen og fikk deretter fire av fire svar, med 0 % pakketap.
+
+![Ping fra PC-SALG til SERVER01 – 75 og 0 prosent pakketap](images/packet-tracer/06-pc-salg-ping-server-75-og-0-prosent-tap.png)
+
+Begge resultatene vises i samme skjermbilde.
+
+Jeg har ikke dokumentert den nøyaktige årsaken til pakketapet i den første testen.
+
+Derfor kan jeg ikke fastslå at ARP var årsaken, eller at forbindelsen var stabil over lengre tid bare fordi den andre testen fungerte.
 
 
 ## 21. Akseptansetest (QA)
