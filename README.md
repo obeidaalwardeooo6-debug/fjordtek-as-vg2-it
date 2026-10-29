@@ -1201,3 +1201,206 @@ Jeg fikk også bedre forståelse av hvorfor VLAN-grensesnittene på SW-CORE-HQ m
 VLAN gir logisk oppdeling av nettverket, men det betyr ikke automatisk at all trafikk mellom avdelingene er blokkert. Da jeg aktiverte ruting mellom VLAN-ene, kunne de kommunisere. Hvis jeg ville begrense denne trafikken, måtte jeg konfigurere egne tilgangsregler.
 
 I denne delen dokumenterte jeg VLAN-oppsettet, rutetabellen og en vellykket test mellom Support og Servere. Jeg har ikke dokumentert en egen test av alle mulige forbindelser mellom VLAN-ene.
+
+
+## 15. Statisk routing mellom hovedkontoret og Salg
+
+### 15.1 Hvorfor jeg brukte statisk routing
+
+Etter at jeg hadde konfigurert VLAN-ene på hovedkontoret, måtte jeg få nettverket til å kommunisere med salgsavdelingen.
+
+Hovedkontoret og Salg hadde forskjellige IP-nettverk. Derfor måtte rutingsenhetene vite hvor de skulle sende trafikken.
+
+Jeg brukte statiske ruter for å bestemme veien mellom nettverkene.
+
+I denne løsningen hadde jeg tre enheter som utførte ruting:
+
+- SW-CORE-HQ – ruting mellom VLAN på hovedkontoret.
+- R1-HQ – forbindelse mellom kjerneswitchen og R2-SALG.
+- R2-SALG – forbindelse til salgsnettverket.
+
+### 15.2 Forbindelsene mellom rutingsenhetene
+
+Jeg brukte to /30-nettverk til forbindelsene.
+
+| Forbindelse | Enhet | IP-adresse |
+|---|---|---|
+| SW-CORE-HQ ↔ R1-HQ | SW-CORE-HQ | 10.0.0.6/30 |
+| SW-CORE-HQ ↔ R1-HQ | R1-HQ | 10.0.0.5/30 |
+| R1-HQ ↔ R2-SALG | R1-HQ | 10.0.0.1/30 |
+| R1-HQ ↔ R2-SALG | R2-SALG | 10.0.0.2/30 |
+
+Jeg valgte /30 fordi hver forbindelse hadde to enheter som trengte hver sin IP-adresse.
+
+### 15.3 Routing på SW-CORE-HQ
+
+Jeg kontrollerte rutetabellen på kjerneswitchen med:
+
+```text
+show ip route
+```
+
+Resultatet viste at VLAN 10, 20 og 30 var direkte tilkoblet kjerneswitchen:
+
+```text
+C 192.168.10.0/24 is directly connected, Vlan10
+C 192.168.20.0/24 is directly connected, Vlan20
+C 192.168.30.0/24 is directly connected, Vlan30
+```
+
+Jeg hadde også konfigurert en statisk standardrute:
+
+```text
+S* 0.0.0.0/0 [1/0] via 10.0.0.5
+```
+
+Denne ruten betydde at trafikk til nettverk som ikke hadde en mer spesifikk rute, kunne sendes videre til R1-HQ på `10.0.0.5`.
+
+Dette var nødvendig for at klientene på hovedkontoret skulle kunne nå Salg.
+
+### 15.4 Routing på R1-HQ
+
+Jeg brukte R1-HQ som forbindelsen mellom hovedkontoret og salgsavdelingen.
+
+Jeg kontrollerte rutene med:
+
+```text
+show ip route
+```
+
+Rutetabellen viste disse statiske rutene:
+
+```text
+S 192.168.10.0/24 [1/0] via 10.0.0.6
+S 192.168.20.0/24 [1/0] via 10.0.0.6
+S 192.168.30.0/24 [1/0] via 10.0.0.6
+S 192.168.40.0/24 [1/0] via 10.0.0.2
+```
+
+De tre første rutene pekte mot SW-CORE-HQ, som hadde VLAN-nettverkene.
+
+Den siste ruten pekte mot R2-SALG, som hadde forbindelse til `192.168.40.0/24`.
+
+Jeg kunne også se at R1-HQ hadde direkte tilkobling til nettverkene `10.0.0.0/30` og `10.0.0.4/30`.
+
+### 15.5 Routing på R2-SALG
+
+På R2-SALG kontrollerte jeg også rutetabellen med:
+
+```text
+show ip route
+```
+
+Den viste:
+
+```text
+S 192.168.10.0/24 [1/0] via 10.0.0.1
+S 192.168.20.0/24 [1/0] via 10.0.0.1
+S 192.168.30.0/24 [1/0] via 10.0.0.1
+```
+
+Alle tre rutene pekte mot R1-HQ på `10.0.0.1`.
+
+R2-SALG hadde dessuten direkte tilkobling til salgsnettverket `192.168.40.0/24`.
+
+Jeg lærte at rutene måtte fungere begge veier. Det var ikke nok at hovedkontoret visste hvordan det skulle nå Salg. R2-SALG måtte også vite hvordan svartrafikken skulle komme tilbake til hovedkontoret.
+
+### 15.6 Feil i forbindelsen mellom SW-CORE-HQ og R1-HQ
+
+Under arbeidet hadde jeg problemer med forbindelsen mellom kjerneswitchen og R1-HQ.
+
+Jeg testet fra SW-CORE-HQ med:
+
+```text
+ping 10.0.0.5
+```
+
+Først fikk jeg ingen svar på de fem ping-forsøkene, slik jeg registrerte i arbeidsloggen.
+
+Jeg undersøkte kablingen og fant at forbindelsen til R1-HQ var koblet til feil port på kjerneswitchen.
+
+Jeg rettet forbindelsen slik at den gikk mellom:
+
+- SW-CORE-HQ: `GigabitEthernet0/1`
+- R1-HQ: `GigabitEthernet0/0`
+
+Etter omkoblingen testet jeg på nytt:
+
+```text
+SW-CORE-HQ>ping 10.0.0.5
+!!!!!
+Success rate is 100 percent (5/5)
+```
+
+Dette viste at forbindelsen mellom kjerneswitchen og R1-HQ fungerte etter rettingen.
+
+Jeg har bilde av den vellykkede testen. Resultatet før omkoblingen er registrert i arbeidsloggen, men jeg har ikke et eget skjermbilde av de fem mislykkede forsøkene.
+
+### 15.7 Tracert fra Administrasjon til Salg
+
+Etter at rutene var konfigurert, testet jeg nettverksveien fra PC-ADMIN til PC-SALG.
+
+Jeg kjørte:
+
+```text
+tracert 192.168.40.100
+```
+
+Resultatet var:
+
+```text
+1    192.168.10.1
+2    10.0.0.5
+3    10.0.0.2
+4    192.168.40.100
+
+Trace complete.
+```
+
+Jeg kunne se fire hopp:
+
+1. SW-CORE-HQ – gateway for VLAN 10.
+2. R1-HQ – forbindelsen videre fra hovedkontoret.
+3. R2-SALG – ruteren ved salgsavdelingen.
+4. PC-SALG – målet.
+
+Dette viste at trafikken kunne gå fra Administrasjon til Salg gjennom rutingsenhetene.
+
+### 15.8 Tracert fra Salg til SERVER01
+
+Jeg testet også forbindelsen fra PC-SALG til SERVER01.
+
+Jeg kjørte:
+
+```text
+tracert 192.168.30.10
+```
+
+Resultatet var:
+
+```text
+1    192.168.40.1
+2    10.0.0.1
+3    10.0.0.6
+4    192.168.30.10
+
+Trace complete.
+```
+
+Denne gangen gikk trafikken fra PC-SALG via R2-SALG, videre til R1-HQ og SW-CORE-HQ, før den nådde SERVER01.
+
+Dette var en viktig test fordi jeg kunne se at trafikken også fant veien tilbake til hovedkontoret.
+
+### 15.9 Hva jeg lærte
+
+Jeg lærte hvordan statiske ruter brukes for å koble sammen forskjellige IP-nettverk.
+
+Jeg forstod også bedre forskjellen mellom direkte tilkoblede nettverk og nettverk som krever en statisk rute.
+
+Med `show ip route` kunne jeg kontrollere rutetabellene, mens `tracert` hjalp meg å se hvilke rutingsenheter trafikken passerte.
+
+Jeg lærte at både riktig kabling, IP-adresser og rutetabeller må fungere sammen.
+
+Da forbindelsen mellom SW-CORE-HQ og R1-HQ ikke fungerte, hjalp det å undersøke den fysiske oppkoblingen før jeg begynte å endre rutene.
+
+Tracert-testene viste at de valgte nettverksveiene fungerte. De var likevel ikke en fullstendig stabilitetstest av hele bedriftsnettverket.
