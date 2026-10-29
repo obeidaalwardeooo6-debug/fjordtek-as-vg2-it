@@ -2016,3 +2016,166 @@ Jeg fikk erfaring med å koble til R2-SALG fra en klient, logge inn og bruke en 
 Jeg lærte også at det ikke er nok å få en tjeneste til å fungere. Jeg må vurdere om tjenesten er sikker, og om den skal være aktiv etter at testen er ferdig.
 
 Denne øvelsen gjorde det lettere for meg å forstå forskjellen mellom å teste en eldre protokoll i et laboratorium og å velge en sikker løsning i et bedriftsnettverk.
+
+
+## 20. Feilsøking og kontrolltester i Packet Tracer
+
+### 20.1 Hvorfor jeg jobbet med feilsøking
+
+Under arbeidet med FjordTek AS opplevde jeg at noen forbindelser ikke fungerte slik jeg forventet.
+
+Jeg brukte blant annet `ping`, `show ip interface brief` og `show ip route` for å kontrollere nettverket.
+
+Jeg ville prøve å finne ut hvor feilene lå, rette dem og teste på nytt etterpå.
+
+### 20.2 Feil mellom SW-CORE-HQ og R1-HQ
+
+Da jeg jobbet med forbindelsen mellom SW-CORE-HQ og R1-HQ, fikk jeg først ikke kontakt med ruteren.
+
+Jeg testet fra SW-CORE-HQ med:
+
+```text
+ping 10.0.0.5
+```
+
+I arbeidsloggen registrerte jeg at alle fem ping-forsøkene feilet.
+
+Jeg undersøkte derfor den fysiske oppkoblingen i Packet Tracer.
+
+Jeg fant at kabelen mot R1-HQ var koblet til feil port på SW-CORE-HQ. Den var koblet til `FastEthernet0/4`, mens den skulle gå til `GigabitEthernet0/1`.
+
+Jeg rettet tilkoblingen slik:
+
+| Enhet | Port |
+|---|---|
+| SW-CORE-HQ | GigabitEthernet0/1 |
+| R1-HQ | GigabitEthernet0/0 |
+
+Etterpå testet jeg forbindelsen på nytt:
+
+```text
+SW-CORE-HQ>ping 10.0.0.5
+
+Sending 5, 100-byte ICMP Echos to 10.0.0.5:
+
+!!!!!
+
+Success rate is 100 percent (5/5)
+```
+
+**Resultat:** Jeg fikk fem svar av fem forsøk.
+
+Dette viste at forbindelsen fungerte etter at jeg hadde rettet kabeltilkoblingen.
+
+Jeg har et skjermbilde av den vellykkede testen. Resultatet før omkoblingen er registrert i arbeidsloggen, men jeg har ikke et eget bilde av de fem mislykkede ping-forsøkene.
+
+### 20.3 Ping fra PC-SALG til SERVER01
+
+Jeg opplevde også et annet resultat da jeg testet kommunikasjonen fra PC-SALG til SERVER01.
+
+Jeg brukte disse adressene:
+
+| Enhet | IP-adresse |
+|---|---|
+| PC-SALG | 192.168.40.100 |
+| SERVER01 | 192.168.30.10 |
+
+På PC-SALG kjørte jeg:
+
+```text
+ping 192.168.30.10
+```
+
+Den første testen viste:
+
+```text
+Request timed out.
+Request timed out.
+Request timed out.
+Reply from 192.168.30.10: bytes=32 time<1ms TTL=125
+```
+
+Statistikken var:
+
+| Resultat | Første test |
+|---|---|
+| Pakker sendt | 4 |
+| Pakker mottatt | 1 |
+| Pakker mistet | 3 |
+| Pakketap | 75 % |
+
+Jeg fikk altså ikke svar på de tre første forespørslene, men den fjerde fikk svar.
+
+Det viste at serveren var nåbar ved slutten av denne testen, men at forbindelsen ikke hadde svart på alle forespørslene.
+
+### 20.4 Ny ping-test
+
+Jeg kjørte samme ping-kommando på nytt:
+
+```text
+ping 192.168.30.10
+```
+
+Denne gangen fikk jeg fire svar fra SERVER01.
+
+Svarene viste `TTL=125`, og responstiden var under 1 ms i hver svarlinje.
+
+Resultatet var:
+
+| Resultat | Andre test |
+|---|---|
+| Pakker sendt | 4 |
+| Pakker mottatt | 4 |
+| Pakker mistet | 0 |
+| Pakketap | 0 % |
+
+Den andre testen viste at alle fire ping-forespørslene fungerte.
+
+Jeg har et skjermbilde som viser både den første og den andre testen.
+
+### 20.5 Hva jeg vet, og hva jeg ikke vet
+
+Det var en tydelig forskjell mellom de to ping-testene fra PC-SALG til SERVER01.
+
+I den første testen fikk jeg 75 % pakketap, mens den andre testen ga 0 % pakketap.
+
+En mulig forklaring kan være at nettverket måtte lære MAC-adresser gjennom ARP, eller at det var en midlertidig forsinkelse i simuleringen.
+
+Jeg har likevel ikke dokumentert nok til å fastslå den nøyaktige årsaken.
+
+Derfor kan jeg ikke skrive at ARP var årsaken til pakketapet.
+
+Jeg kan heller ikke si at nettverket var helt stabilt over tid bare fordi den andre testen fungerte.
+
+Det jeg kan bekrefte, er at forbindelsen svarte på alle fire forespørslene under den andre testen.
+
+### 20.6 Andre kontrolltester
+
+Jeg gjennomførte også andre tester for å kontrollere kommunikasjonen i bedriftsnettverket.
+
+| Test | Resultat |
+|---|---|
+| PC-ADMIN til gateway `192.168.10.1` | 4/4 svar, 0 % pakketap |
+| PC-SUPPORT til SERVER01 `192.168.30.10` | 4/4 svar, 0 % pakketap |
+| SW-CORE-HQ til R1-HQ `10.0.0.5` | 5/5 svar etter omkoblingen |
+| Tracert fra ADMIN til SALG | Fire hopp, Trace complete |
+| Tracert fra SALG til SERVER01 | Fire hopp, Trace complete |
+
+Disse testene hjalp meg å kontrollere at de utvalgte forbindelsene fungerte.
+
+Rutene og tracert-resultatene er forklart nærmere i kapittel 15, så jeg gjentar ikke alle detaljene her.
+
+### 20.7 Hva jeg lærte av feilsøkingen
+
+Jeg lærte at jeg bør kontrollere kabling og grensesnitt før jeg begynner å endre rutingskonfigurasjonen.
+
+Da SW-CORE-HQ ikke fikk kontakt med R1-HQ, hjalp det å undersøke hvilken port kabelen var koblet til.
+
+Jeg lærte også at jeg må være forsiktig med å trekke konklusjoner når et testresultat endrer seg.
+
+Selv om ping fungerte ved andre forsøk fra PC-SALG, visste jeg ikke sikkert hvorfor tre pakker gikk tapt i den første testen.
+
+Det viktigste jeg tar med meg, er at feilsøking handler om å undersøke symptomer, bruke riktige verktøy, teste mulige løsninger og kontrollere resultatene.
+
+Jeg vil også skille mellom det jeg har bevist gjennom tester, og det jeg bare har en mulig forklaring på.
+
