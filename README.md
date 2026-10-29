@@ -440,3 +440,52 @@ Med ping kunne jeg teste om SERVER01 svarte på ICMP. Med Nmap kunne jeg unders�
 Jeg fikk også bedre forståelse av hvordan IP-adresser, TCP-porter og nettverkstjenester henger sammen.
 
 Wireshark viste trafikk knyttet til SMB, men pakkefangsten alene beviste ikke at en testfil var skrevet og lagret på serveren. Det måtte kontrolleres med en egen filtest.
+
+
+
+
+## 9. Tracert og nettverksvei
+
+### 9.1 Hvorfor jeg brukte tracert
+
+Jeg brukte `tracert` for å undersøke hvilken vei trafikken tok fra CLIENT01 til SERVER01.
+
+Jeg ville forstå forskjellen mellom kommunikasjon i samme lokale nettverk og kommunikasjon mellom forskjellige nettverk.
+
+### 9.2 Testen jeg gjennomførte
+
+Jeg åpnet CMD på CLIENT01 og kjørte:
+
+`tracert 192.168.50.10`
+
+På dette tidspunktet brukte jeg disse adressene:
+
+- CLIENT01: `192.168.50.100`
+- SERVER01: `192.168.50.10`
+- Nettverk: `192.168.50.0/24`
+
+Begge maskinene var koblet til samme switch og lå i samme IP-nettverk.
+
+### 9.3 Hva testen betyr
+
+Siden CLIENT01 og SERVER01 lå i samme subnett, trengte ikke trafikken å gå via ruteren.
+
+Klienten kunne sende trafikken direkte til serveren gjennom switchen.
+
+Jeg brukte tracert for å undersøke nettverksveien, men jeg har foreløpig ikke lagt ved det opprinnelige resultatet med nøyaktig antall hopp. Derfor oppgir jeg ikke et bestemt hoppantall.
+
+### 9.4 Sammenligning med Packet Tracer
+
+I Cisco Packet Tracer jobbet jeg med et større nettverk for FjordTek AS. Der hadde jeg flere LAN med forskjellige IP-nettverk.
+
+Når en klient i Administrasjon skal kommunisere med en klient i Salg, må trafikken rutes mellom nettverkene.
+
+Forskjellen er at kommunikasjonen mellom CLIENT01 og SERVER01 i det fysiske labnettet skjer lokalt, mens trafikken mellom Administrasjon og Salg i Packet Tracer må gjennom enheter som utfører ruting.
+
+### 9.5 Hva jeg lærte
+
+Jeg lærte at standard gateway brukes når en enhet skal sende trafikk til et annet IP-nettverk.
+
+Jeg forstod også bedre hvorfor det er viktig å vite om to enheter ligger i samme subnett før jeg begynner med feilsøking.
+
+`ping` hjalp meg å teste om enheten svarte, mens `tracert` ble brukt for å undersøke veien mot målet.
