@@ -1127,6 +1127,23 @@ I den fysiske laben var klienten og serveren i samme subnett. I FjordTek AS måt
 Dette gjorde det lettere for meg å forstå hvorfor både adresseplan, gateway og rutetabeller må være riktige.
 
 
+### Bilder av nettverksdesignet
+
+**Første utkast av nettverket**
+
+Jeg startet med en plan for hvordan nettverket til FjordTek AS skulle bygges opp. Denne planen ble endret under arbeidet.
+
+![Første nettverksdesign for FjordTek AS](images/designhistorikk/01-fjordtek-forste-nettverksdesign-plan.png)
+
+**Ferdig logisk nettverkstopologi**
+
+I den ferdige løsningen brukte jeg to rutere, fire tilgangsswitcher og en Layer 3-switch som kjerneswitch.
+
+![Ferdig nettverkstopologi for FjordTek AS](images/packet-tracer/20-fjordtek-endelig-logisk-topologi.png)
+
+Bildene viser forskjellen mellom den første planen og den ferdige nettverksløsningen i Packet Tracer.
+
+
 ## 14. VLAN og Inter-VLAN Routing
 
 ### 14.1 Hvorfor jeg brukte VLAN
@@ -1280,6 +1297,27 @@ Jeg fikk også bedre forståelse av hvorfor VLAN-grensesnittene på SW-CORE-HQ m
 VLAN gir logisk oppdeling av nettverket, men det betyr ikke automatisk at all trafikk mellom avdelingene er blokkert. Da jeg aktiverte ruting mellom VLAN-ene, kunne de kommunisere. Hvis jeg ville begrense denne trafikken, måtte jeg konfigurere egne tilgangsregler.
 
 I denne delen dokumenterte jeg VLAN-oppsettet, rutetabellen og en vellykket test mellom Support og Servere. Jeg har ikke dokumentert en egen test av alle mulige forbindelser mellom VLAN-ene.
+
+
+### Skjermbilder av VLAN-konfigurasjonen
+
+**SW-CORE-HQ – IP-grensesnitt**
+
+Jeg brukte `show ip interface brief` for å kontrollere VLAN-grensesnittene og forbindelsen til R1-HQ.
+
+Bildet viser VLAN 10, VLAN 20 og VLAN 30, samt det rutede grensesnittet mot R1-HQ.
+
+![IP-grensesnitt på SW-CORE-HQ](images/packet-tracer/01-sw-core-ip-interface-brief.png)
+
+**SW-ADMIN – Porter i VLAN 10**
+
+Jeg brukte `show vlan brief` for å kontrollere at portene på SW-ADMIN var plassert i riktig VLAN.
+
+Resultatet viste Fa0/1, Fa0/2 og Fa0/3 i VLAN 10.
+
+![VLAN 10 og porter på SW-ADMIN](images/packet-tracer/09-sw-admin-vlan10-porter.png)
+
+Disse bildene dokumenterer konfigurasjonen på switchene. Selve kommunikasjonen mellom VLAN-ene ble kontrollert med egne ping- og rutingtester.
 
 
 ## 15. Statisk routing mellom hovedkontoret og Salg
@@ -1483,6 +1521,57 @@ Jeg lærte at både riktig kabling, IP-adresser og rutetabeller må fungere samm
 Da forbindelsen mellom SW-CORE-HQ og R1-HQ ikke fungerte, hjalp det å undersøke den fysiske oppkoblingen før jeg begynte å endre rutene.
 
 Tracert-testene viste at de valgte nettverksveiene fungerte. De var likevel ikke en fullstendig stabilitetstest av hele bedriftsnettverket.
+
+
+### Skjermbilder av ruting og tracert
+
+**Rutetabell på SW-CORE-HQ**
+
+Jeg brukte `show ip route` for å kontrollere de direkte tilkoblede VLAN-nettverkene og standardruten mot R1-HQ (`10.0.0.5`).
+
+![Rutetabell på SW-CORE-HQ](images/packet-tracer/28-sw-core-hq-show-ip-route.png)
+
+**Rutetabell på R1-HQ**
+
+R1-HQ hadde statiske ruter til VLAN-nettverkene via SW-CORE-HQ og en rute til salgsnettverket via R2-SALG.
+
+![Rutetabell på R1-HQ](images/packet-tracer/26-r1-hq-show-ip-route.png)
+
+**Rutetabell på R2-SALG**
+
+R2-SALG hadde statiske ruter tilbake til nettverkene på hovedkontoret via R1-HQ.
+
+![Rutetabell på R2-SALG](images/packet-tracer/27-r2-salg-show-ip-route.png)
+
+### Tracert mellom nettverkene
+
+**Fra PC-ADMIN til PC-SALG**
+
+Jeg brukte `tracert 192.168.40.100` for å undersøke veien fra Administrasjon til Salg.
+
+Resultatet viste fire hopp:
+
+1. 192.168.10.1
+2. 10.0.0.5
+3. 10.0.0.2
+4. 192.168.40.100
+
+![Tracert fra PC-ADMIN til PC-SALG](images/packet-tracer/08-tracert-pc-admin-til-pc-salg.png)
+
+**Fra PC-SALG til SERVER01**
+
+Jeg brukte `tracert 192.168.30.10` for å undersøke veien fra Salg til servernettverket.
+
+Resultatet viste fire hopp:
+
+1. 192.168.40.1
+2. 10.0.0.1
+3. 10.0.0.6
+4. 192.168.30.10
+
+![Tracert fra PC-SALG til SERVER01](images/packet-tracer/07-tracert-pc-salg-til-server01.png)
+
+Rutingsbildene dokumenterer hvilke ruter som var konfigurert. Tracert-bildene viser hvilke hopp pakkene tok under de to testene.
 
 
 ## 16. DHCP i Cisco Packet Tracer
