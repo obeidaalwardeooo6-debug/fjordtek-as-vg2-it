@@ -448,44 +448,52 @@ Wireshark viste trafikk knyttet til SMB, men pakkefangsten alene beviste ikke at
 
 ### 9.1 Hvorfor jeg brukte tracert
 
-Jeg brukte `tracert` for å undersøke hvilken vei trafikken tok fra CLIENT01 til SERVER01.
+Jeg brukte `tracert` for å undersøke veien fra CLIENT01 til SERVER01.
 
-Jeg ville forstå forskjellen mellom kommunikasjon i samme lokale nettverk og kommunikasjon mellom forskjellige nettverk.
+Målet var å finne ut om trafikken gikk direkte i det lokale nettverket, eller om den måtte gå gjennom en ruter.
 
 ### 9.2 Testen jeg gjennomførte
 
-Jeg åpnet CMD på CLIENT01 og kjørte:
+Den 22.10.2026 kjørte jeg denne kommandoen fra CLIENT01:
 
-`tracert 192.168.50.10`
+```powershell
+tracert -d 192.168.50.10
+```
 
-På dette tidspunktet brukte jeg disse adressene:
+Jeg brukte `-d` for å unngå navneoppslag og vise IP-adressene direkte.
 
-- CLIENT01: `192.168.50.100`
-- SERVER01: `192.168.50.10`
-- Nettverk: `192.168.50.0/24`
+Resultatet var:
 
-Begge maskinene var koblet til samme switch og lå i samme IP-nettverk.
+```text
+Tracing route to 192.168.50.10 over a maximum of 30 hops
 
-### 9.3 Hva testen betyr
+  1     1 ms    <1 ms    <1 ms    192.168.50.10
 
-Siden CLIENT01 og SERVER01 lå i samme subnett, trengte ikke trafikken å gå via ruteren.
+Trace complete.
+```
 
-Klienten kunne sende trafikken direkte til serveren gjennom switchen.
+### 9.3 Hva resultatet viste
 
-Jeg brukte tracert for å undersøke nettverksveien, men jeg har foreløpig ikke lagt ved det opprinnelige resultatet med nøyaktig antall hopp. Derfor oppgir jeg ikke et bestemt hoppantall.
+Jeg fikk bare ett hopp, og det var direkte til SERVER01 på `192.168.50.10`.
 
-### 9.4 Sammenligning med Packet Tracer
+Dette stemte med adresseplanen min:
 
-I Cisco Packet Tracer jobbet jeg med et større nettverk for FjordTek AS. Der hadde jeg flere LAN med forskjellige IP-nettverk.
+- CLIENT01: `192.168.50.100/24`
+- SERVER01: `192.168.50.10/24`
 
-Når en klient i Administrasjon skal kommunisere med en klient i Salg, må trafikken rutes mellom nettverkene.
+Begge maskinene lå i samme subnett. Derfor trengte ikke trafikken å gå via R1.
 
-Forskjellen er at kommunikasjonen mellom CLIENT01 og SERVER01 i det fysiske labnettet skjer lokalt, mens trafikken mellom Administrasjon og Salg i Packet Tracer må gjennom enheter som utfører ruting.
+SW1 videresendte trafikken mellom maskinene, men switchen ble ikke vist som et eget ruterhopp i tracert.
 
-### 9.5 Hva jeg lærte
+Svartiden var omtrent 1 ms eller mindre.
 
-Jeg lærte at standard gateway brukes når en enhet skal sende trafikk til et annet IP-nettverk.
+### 9.4 Hva jeg lærte
 
+Jeg lærte at to enheter i samme lokale IP-nettverk normalt kan kommunisere uten å bruke standard gateway.
+
+I Packet Tracer bygde jeg senere flere nettverk. Der måtte trafikken mellom forskjellige subnett gå gjennom enheter som utførte ruting.
+
+Dette gjorde det lettere for meg å forstå forskjellen mellom kommunikasjon i samme LAN og kommunikasjon mellom forskjellige nettverk.
 Jeg forstod også bedre hvorfor det er viktig å vite om to enheter ligger i samme subnett før jeg begynner med feilsøking.
 
 `ping` hjalp meg å teste om enheten svarte, mens `tracert` ble brukt for å undersøke veien mot målet.
