@@ -917,3 +917,132 @@ Jeg lærte mye om IP-adressering, DHCP, servertilkobling og bruk av forskjellige
 Samtidig ser jeg at jeg burde tatt bedre vare på enkelte skjermbilder underveis.
 
 I den samlede akseptansetesten skal jeg bruke både kravspesifikasjonen og de faktiske resultatene for å vurdere hva jeg kan dokumentere som bestått, og hva som fortsatt har mangler.
+
+
+## 13. FjordTek AS – nettverksdesign i Cisco Packet Tracer
+
+### 13.1 Om bedriftsnettverket
+
+Etter at jeg hadde jobbet med det fysiske nettverket på skolen, gikk jeg videre til Cisco Packet Tracer.
+
+Denne gangen skulle jeg bygge et større nettverk for en fiktiv bedrift som heter FjordTek AS.
+
+Bedriften hadde et hovedkontor med tre avdelinger: Administrasjon, Support og Servere. I tillegg hadde bedriften en egen salgsavdeling.
+
+Målet mitt var å koble sammen flere nettverk og sørge for at klientene kunne kommunisere med serveren, selv om de var i forskjellige subnett.
+
+Jeg skulle også bruke DHCP, DNS, HTTP og ruting mellom nettverkene.
+
+### 13.2 Planlegging og første utkast – 23.10.2026
+
+Jeg startet med å plassere nettverksenhetene i Logical Workspace i Packet Tracer.
+
+I det første utkastet brukte jeg:
+
+- 2 Cisco 2911-rutere
+- 4 Cisco 2960-24TT-switcher
+- 3 klient-PC-er
+- 1 server
+
+Jeg kalte ruterne `R1-HQ` og `R2-SALG`.
+
+Switchene fikk navn etter avdelingene de skulle brukes i. Serverswitchen het først `SW-SERVER2`, men jeg endret senere navnet til `SW-SERVER`.
+
+På dette tidspunktet hadde jeg bare plassert enhetene. Jeg hadde ennå ikke fullført konfigureringen eller testet kommunikasjonen.
+
+### 13.3 Den ferdige nettverkstopologien
+
+Jeg bygde videre på det første utkastet og la til en Cisco 3560 Layer 3-switch som kjerneswitch på hovedkontoret.
+
+Jeg la også til en ekstra klient, `PC-ADMIN2`, slik at jeg kunne teste kommunikasjon mellom to PC-er i samme VLAN.
+
+Den ferdige topologien bestod av:
+
+| Enhet | Modell | Funksjon |
+|---|---|---|
+| R1-HQ | Cisco 2911 | Ruter ved hovedkontoret |
+| R2-SALG | Cisco 2911 | Ruter ved salgsavdelingen |
+| SW-CORE-HQ | Cisco 3560-24PS | Kjerneswitch med Layer 3-ruting |
+| SW-ADMIN | Cisco 2960-24TT | Tilgangsswitch for Administrasjon |
+| SW-SUPPORT | Cisco 2960-24TT | Tilgangsswitch for Support |
+| SW-SERVER | Cisco 2960-24TT | Tilgangsswitch for servernettet |
+| SW-SALG | Cisco 2960-24TT | Tilgangsswitch for Salg |
+| PC-ADMIN | PC-PT | Klient i Administrasjon |
+| PC-ADMIN2 | PC-PT | Ekstra klient i Administrasjon |
+| PC-SUPPORT | PC-PT | Klient i Support |
+| PC-SALG | PC-PT | Klient i Salg |
+| SERVER01 | Server-PT | Server for DNS og HTTP |
+
+Jeg brukte totalt fem switcher: fire tilgangsswitcher og én kjerneswitch.
+
+### 13.4 Adresseplan og VLAN
+
+Jeg valgte å bruke forskjellige IP-nettverk for hver avdeling.
+
+| Avdeling | VLAN | Nettverk | Gateway |
+|---|---|---|---|
+| Administrasjon | 10 | 192.168.10.0/24 | 192.168.10.1 |
+| Support | 20 | 192.168.20.0/24 | 192.168.20.1 |
+| Servere | 30 | 192.168.30.0/24 | 192.168.30.1 |
+| Salg | 40 | 192.168.40.0/24 | 192.168.40.1 |
+
+På hovedkontoret brukte jeg VLAN 10, 20 og 30.
+
+Gatewayene for disse VLAN-ene lå på SW-CORE-HQ, som kunne utføre ruting mellom VLAN-ene.
+
+På Salg brukte jeg R2-SALG som gateway med adressen `192.168.40.1`.
+
+SERVER01 fikk en fast adresse i servernettet:
+
+- IP-adresse: `192.168.30.10`
+- Subnettmaske: `255.255.255.0`
+- Gateway: `192.168.30.1`
+
+Jeg brukte forskjellige subnett for å skille avdelingene logisk. Det gjorde det også mulig å øve på ruting mellom nettverkene.
+
+### 13.5 Forbindelsene mellom rutere og kjerneswitch
+
+Jeg brukte egne /30-nettverk mellom rutingsenhetene.
+
+| Forbindelse | Nettverk | IP-adresser |
+|---|---|---|
+| R1-HQ ↔ R2-SALG | 10.0.0.0/30 | R1: 10.0.0.1, R2: 10.0.0.2 |
+| SW-CORE-HQ ↔ R1-HQ | 10.0.0.4/30 | R1: 10.0.0.5, CORE: 10.0.0.6 |
+
+Jeg brukte Ethernet-forbindelser mellom rutingsenhetene.
+
+Jeg valgte /30 fordi hver av disse forbindelsene bare trengte to brukbare IP-adresser.
+
+Med denne oppkoblingen kunne trafikken fra hovedkontoret gå via R1-HQ og R2-SALG til salgsavdelingen.
+
+### 13.6 Hvorfor jeg brukte en Layer 3-switch
+
+Jeg brukte SW-CORE-HQ for å samle nettverkene på hovedkontoret.
+
+En vanlig Layer 2-switch videresender Ethernet-rammer innenfor det lokale nettverket, mens en Layer 3-switch også kan rute IP-trafikk mellom subnett.
+
+Jeg brukte virtuelle VLAN-grensesnitt (SVI) på kjerneswitchen som gateway for VLAN 10, 20 og 30.
+
+Dette gjorde at jeg kunne bruke én kjerneswitch til ruting mellom avdelingene på hovedkontoret, i stedet for å bruke en egen fysisk ruter for hvert VLAN.
+
+### 13.7 Hvordan arbeidet utviklet seg
+
+Jeg startet med å plassere enhetene og lage en adresseplan.
+
+Deretter bygde jeg videre på løsningen, konfigurerte forbindelsene og testet kommunikasjonen mellom forskjellige nettverk.
+
+Underveis måtte jeg også rette en feil i forbindelsen mellom SW-CORE-HQ og R1-HQ.
+
+Da jeg hadde rettet forbindelsen, fikk jeg fem av fem ping-svar fra kjerneswitchen til R1-HQ.
+
+Jeg dokumenterer selve feilsøkingen og testresultatene i de neste kapitlene.
+
+### 13.8 Hva jeg lærte av nettverksdesignet
+
+Jeg lærte at det er viktig å planlegge IP-adressene og forbindelsene før jeg begynner med konfigureringen.
+
+Jeg fikk også bedre forståelse av forskjellen mellom et fysisk nettverk og et større bedriftsnettverk med flere VLAN og rutere.
+
+I den fysiske laben var klienten og serveren i samme subnett. I FjordTek AS måtte jeg konfigurere ruting for at klienter i forskjellige nettverk skulle kunne kommunisere.
+
+Dette gjorde det lettere for meg å forstå hvorfor både adresseplan, gateway og rutetabeller må være riktige.
