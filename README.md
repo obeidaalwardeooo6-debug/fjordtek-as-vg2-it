@@ -492,69 +492,101 @@ IP-adressen brukes for å nå riktig enhet, mens portnummeret brukes for å nå 
 
 Jeg lærte også at Nmap og ping undersøker forskjellige ting. Ping tester kontakt med ICMP, mens Nmap kan undersøke tilgjengeligheten til bestemte TCP-porter.
 
+
 ## 8. Wireshark – analyse av nettverkstrafikk
 
 ### 8.1 Hvorfor jeg brukte Wireshark
 
-Etter at jeg hadde testet nettverket med ping og Nmap, ville jeg se hvilken trafikk som faktisk gikk mellom CLIENT01 og SERVER01.
+Den 22.10.2026 brukte jeg Wireshark på CLIENT01 for å undersøke trafikken mellom klienten og SERVER01.
 
-Jeg brukte Wireshark på CLIENT01 for å fange og undersøke nettverkspakker.
+Jeg hadde allerede testet forbindelsen med ping og undersøkt porter med Nmap. Nå ville jeg se hvilke pakker som faktisk ble sendt mellom maskinene.
 
-Jeg valgte nettverkskortet som var koblet til labnettet, slik at jeg kunne se trafikken fra riktig tilkobling.
+Jeg brukte nettverksadapteren `Ethernet 2` til pakkefangsten.
 
-### 8.2 ICMP – testing med ping
+### 8.2 ICMP – trafikk fra ping
 
-Jeg startet en pakkefangst i Wireshark og brukte ping mot SERVER01:
-
-`ping 192.168.50.10`
-
-Deretter brukte jeg dette visningsfilteret i Wireshark:
+Jeg undersøkte ICMP-trafikk med dette visningsfilteret:
 
 `icmp`
 
-Jeg undersøkte ICMP-trafikken mellom CLIENT01 og SERVER01.
+I Wireshark fant jeg åtte ICMP-pakker mellom:
 
 - CLIENT01: `192.168.50.100`
 - SERVER01: `192.168.50.10`
 
-Når en PC sender en ping, bruker den ICMP Echo Request. Hvis den andre enheten svarer, kommer det en ICMP Echo Reply tilbake.
+Det var fire Echo Request og fire Echo Reply, med sekvensnumrene 37, 38, 39 og 40.
 
-I denne testen kunne jeg undersøke ICMP-pakkene i Wireshark og sammenligne trafikken med ping-testen jeg hadde gjennomført.
+Pakkene hadde en lengde på 74 byte i Wireshark.
+
+Jeg sammenlignet Source og Destination for å se hvordan trafikken gikk mellom klienten og serveren.
+
+**Resultat:**
+
+Jeg kunne se både forespørsler og svar. Det viste at ICMP-kommunikasjonen fungerte i denne pakkefangsten.
+
+Bildet viste fire forespørsel-/svarpar, men ikke den fullstendige statistikken fra ping-kommandoen. Derfor bruker jeg ikke dette bildet alene til å dokumentere pakketapsprosenten.
 
 ### 8.3 SMB – trafikk på TCP-port 445
 
-Etterpå undersøkte jeg trafikken mellom CLIENT01 og SERVER01 i forbindelse med fildeling.
+Etterpå undersøkte jeg trafikken i forbindelse med den delte mappen `Felles`.
 
-Jeg brukte dette visningsfilteret:
+Jeg brukte dette filteret:
 
 `ip.addr == 192.168.50.10 && tcp.port == 445`
 
-Filteret viste TCP-trafikk som involverte SERVER01 og port 445.
+Filteret viste TCP-trafikk der SERVER01 var avsender eller mottaker, og der kilde- eller målporten var 445.
 
-Jeg kunne se SMB2-relatert trafikk i Wireshark. Det passet med at jeg hadde brukt SMB til å åpne den delte mappen på serveren.
+I pakkefangsten kunne jeg se kommunikasjon mellom CLIENT01 og SERVER01.
 
-Denne testen hjalp meg å forstå at fildeling ikke bare er en mappe som åpnes i Filutforsker. Klienten og serveren må også utveksle nettverkspakker for at tjenesten skal fungere.
+En av pakkene viste:
 
-### 8.4 Forskjellen mellom Nmap og Wireshark
+- Source IP: `192.168.50.100`
+- Destination IP: `192.168.50.10`
+- TCP Source Port: `34647`
+- TCP Destination Port: `445`
 
-Jeg brukte begge verktøyene, men til forskjellige oppgaver.
+Jeg kunne også se TCP-trafikk i motsatt retning, fra port 445 på serveren til port 34647 på klienten.
 
-**Nmap:** Jeg undersøkte hvilke TCP-porter som var tilgjengelige på SERVER01. Skanningen viste blant annet at port 445 var åpen.
+Wireshark viste flere pakker med protokolletiketten `SMB2`.
 
-**Wireshark:** Jeg undersøkte pakkene som gikk over nettverket mens jeg testet kommunikasjon og fildeling.
+### 8.4 SMB-meldingene jeg fant
 
-Nmap fortalte meg hvilke porter jeg kunne nå, mens Wireshark hjalp meg å se selve trafikken.
+Jeg kunne blant annet se disse meldingene:
 
-### 8.5 Hva jeg lærte
+| Melding | Hva den viser |
+|---|---|
+| Create Request | Klienten sender en forespørsel om å åpne et objekt |
+| Create Response | Serveren svarer på forespørselen |
+| Close Request | Klienten ber om å lukke et objekt |
+| Close Response | Serveren svarer på lukkingen |
+| Cancel Request | En forespørsel blir forsøkt avbrutt |
+| Notify Response – STATUS_CANCELLED | En forespørsel om varsling er blitt avbrutt |
 
-Jeg lærte at forskjellige nettverksverktøy gir forskjellig informasjon.
+Jeg la merke til at noen av pakkene viste `Create Request, File: <share>`.
 
-Med ping kunne jeg teste om SERVER01 svarte på ICMP. Med Nmap kunne jeg undersøke bestemte TCP-porter. Med Wireshark kunne jeg se på pakkene og protokollene som ble brukt.
+Dette var interessant fordi det viste SMB-kommandoer knyttet til delingen. Men det var ikke et bevis på at jeg hadde opprettet en vanlig testfil i mappen.
 
-Jeg fikk også bedre forståelse av hvordan IP-adresser, TCP-porter og nettverkstjenester henger sammen.
+Jeg så også `STATUS_CANCELLED`. Jeg kunne ikke konkludere med at fildelingen hadde feilet bare på grunn av denne meldingen.
 
-Wireshark viste trafikk knyttet til SMB, men pakkefangsten alene beviste ikke at en testfil var skrevet og lagret på serveren. Det måtte kontrolleres med en egen filtest.
+### 8.5 Forskjellen mellom Nmap og Wireshark
 
+Jeg brukte Nmap for å undersøke hvilke TCP-porter som var tilgjengelige på SERVER01.
+
+Nmap viste blant annet at port 445 var åpen.
+
+Med Wireshark kunne jeg se selve kommunikasjonen som brukte port 445, inkludert TCP-pakker og SMB-meldinger.
+
+Jeg lærte at Nmap og Wireshark brukes til forskjellige oppgaver. Nmap undersøker blant annet porttilgjengelighet, mens Wireshark gjør det mulig å analysere nettverkspakker.
+
+### 8.6 Hva jeg lærte
+
+Denne oppgaven gjorde det lettere for meg å forstå hvordan klienten og serveren kommuniserer.
+
+Jeg lærte å bruke visningsfiltre for å finne relevante pakker og å undersøke IP-adresser, porter og protokoller.
+
+Jeg lærte også at jeg må være forsiktig når jeg tolker resultater. SMB-trafikk viser at det foregår kommunikasjon, men beviser ikke alene at en bestemt fil ble lagret, eller hvilke rettigheter brukeren har.
+
+Jeg har dokumentert ICMP- og SMB-trafikken med skjermbilder fra den fysiske laben. Bildene skal legges til i den nye dokumentasjonen senere.
 
 
 
