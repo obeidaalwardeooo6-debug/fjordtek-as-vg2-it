@@ -2564,3 +2564,161 @@ For meg handler det ikke bare om å få en god karakter. Jeg ønsker å utvikle 
 Det viktigste jeg tar med meg fra prosjektet, er at jeg har lært mye, men også blitt mer bevisst på hva jeg fortsatt må jobbe med.
 
 Jeg vil fortsette å repetere, teste og utfordre meg selv til jeg blir tryggere og mer selvstendig innen IT og nettverk.
+
+
+
+## 23. GitHub Projects og arbeidsprosess
+
+### 23.1 Hvorfor jeg brukte GitHub
+
+I dette prosjektet brukte jeg GitHub for å samle dokumentasjonen og holde oversikt over arbeidet mitt.
+
+Jeg ville ha ett sted der jeg kunne dokumentere planlegging, nettverksoppsett, tester, feilsøking og resultatene fra prosjektet.
+
+GitHub var også en del av oppgaven fra læreren. Jeg skulle bruke repository, README, commits og GitHub Projects til å vise hvordan arbeidet utviklet seg.
+
+Jeg lærte at GitHub ikke bare brukes til programmering. Det kan også brukes til teknisk dokumentasjon og prosjektstyring.
+
+### 23.2 Arbeidet i det opprinnelige repositoryet
+
+Jeg startet med å dokumentere arbeidet i repositoryet `mitt-forste-nettverk`.
+
+Der brukte jeg GitHub Issues til å registrere oppgaver knyttet til blant annet:
+
+- Planlegging og kravspesifikasjon.
+- Oppkobling av det fysiske nettverket.
+- IP-adressering og DHCP.
+- Testing med ping, Nmap og Wireshark.
+- Bygging og konfigurering av FjordTek AS.
+- Testing i Simulation Mode.
+- Feilsøking og akseptansetest.
+- Dokumentasjon og innlevering.
+
+Jeg brukte også GitHub Projects til å få en bedre oversikt over oppgavene.
+
+I arbeidsloggen fra 29.10.2026 hadde jeg registrert 19 oppgaver i Done og 2 i In Progress. De to oppgavene som fortsatt pågikk, gjaldt QA og den siste kontrollen før innlevering.
+
+Dette var statusen jeg hadde dokumentert i det opprinnelige prosjektet, ikke en kontroll av dagens status i det nye repositoryet.
+
+### 23.3 Hvorfor jeg startet dokumentasjonen på nytt
+
+Etter at jeg hadde jobbet med prosjektet en stund, ønsket jeg å gjøre dokumentasjonen tydeligere og mer oversiktlig.
+
+Det opprinnelige README-dokumentet inneholdt mye informasjon, men noen temaer ble gjentatt, og enkelte resultater var vanskeligere å finne.
+
+Derfor begynte jeg å skrive dokumentasjonen på nytt i et eget repository.
+
+Jeg bruker de samme nettverksoppsettene, testresultatene og bildene fra det opprinnelige prosjektet.
+
+Jeg bygger ikke et helt nytt nettverk og gjennomfører ikke nye tester bare fordi jeg skriver rapporten på nytt.
+
+Målet mitt er å forklare det tidligere arbeidet bedre og samle informasjonen i en mer logisk rekkefølge.
+
+Jeg har også prøvd å skille tydeligere mellom resultater som har direkte skjermbildebevis, og resultater som bare er registrert i arbeidsloggen.
+
+### 23.4 GitHub Projects og Kanban
+
+Jeg skal bruke GitHub Projects med Board-visning i det nye repositoryet.
+
+Brettet skal ha tre kolonner:
+
+| Kolonne | Hva den betyr |
+|---|---|
+| Todo | Oppgaver jeg ikke har begynt på |
+| In Progress | Oppgaver jeg arbeider med |
+| Done | Oppgaver jeg har fullført |
+
+Jeg vil bruke konkrete oppgaver, slik at jeg lettere kan følge med på hva som mangler.
+
+I den siste dokumentasjonsfasen gjelder dette blant annet kontroll av README, overføring av bilder, opplasting av Packet Tracer-filen og gjennomgang av akseptansetesten.
+
+Jeg vil ikke markere en oppgave som ferdig før jeg faktisk har gjennomført den.
+
+Siden jeg nå skriver dokumentasjonen på nytt, skal jeg også skille mellom det praktiske nettverksarbeidet som allerede ble gjennomført, og arbeidet som fortsatt gjenstår med den nye GitHub-leveransen.
+
+Det er viktig for meg at prosjektbrettet viser den faktiske statusen, ikke bare at alle oppgavene ser ferdige ut.
+
+### 23.5 Commits og dokumentasjon av endringer
+
+Jeg har brukt README til å forklare hva jeg gjorde i prosjektet, hvilke innstillinger jeg valgte, og hvilke tester jeg gjennomførte.
+
+I det nye repositoryet deler jeg dokumentasjonen inn i flere kapitler og lagrer endringene underveis.
+
+Jeg ønsker å bruke tydelige commit-meldinger som forteller hva som er lagt til eller rettet.
+
+For eksempel:
+
+- `Dokumenterte IP-adresseplan og DHCP-oppsett`
+- `Dokumenterte VLAN og inter-VLAN-ruting`
+- `Rettet Wireshark-dokumentasjon med faktiske pakkefunn`
+- `La til akseptansetest for krav K1–K8`
+
+På den måten blir det lettere å følge endringene.
+
+Samtidig er jeg klar over at commit-historikken i det nye repositoryet først og fremst viser hvordan jeg har skrevet og organisert dokumentasjonen på nytt. Den viser ikke hele den opprinnelige byggeprosessen fra oktober.
+
+Den prosessen har jeg beskrevet ut fra den tidligere arbeidsloggen og testresultatene.
+
+### 23.6 Filer og dokumentasjon
+
+I det opprinnelige repositoryet samlet jeg både README, bilder og Packet Tracer-prosjektfilen.
+
+Den gamle prosjektkopien inneholder 41 bilder: 11 i mappen for det fysiske nettverket, 29 fra Packet Tracer og ett fra den første planleggingen.
+
+Ikke alle bildene er testbevis. Noen viser utstyr, nettverksdesign eller teori.
+
+Jeg har også den ferdige Packet Tracer-filen:
+
+`FjordTek-AS-Ferdig.pkt`
+
+Disse filene skal overføres til det nye repositoryet.
+
+Jeg ønsker å organisere dem slik:
+
+```text
+fjordtek-as-vg2-it/
+├── README.md
+├── images/
+│   ├── fysisk-nettverk/
+│   ├── packet-tracer/
+│   └── designhistorikk/
+└── packet-tracer/
+    └── FjordTek-AS-Ferdig.pkt
+```
+
+Når bildene er lastet opp, skal jeg legge inn lenker i README der de passer til testene.
+
+Jeg må også kontrollere at alle filnavn og lenker stemmer.
+
+### 23.7 Hva jeg fortsatt må gjøre
+
+Før jeg kan levere prosjektet, må jeg fullføre den nye GitHub-leveransen.
+
+Det som gjenstår, er blant annet:
+
+- Kontrollere README og rette eventuelle feil.
+- Overføre de opprinnelige bildene.
+- Laste opp den ferdige Packet Tracer-filen.
+- Opprette eller koble riktig GitHub Project til det nye repositoryet.
+- Registrere og oppdatere oppgavene i Kanban-brettet.
+- Kontrollere at dokumentasjonen og filene kan åpnes.
+- Kontrollere at læreren har tilgang til repositoryet og prosjektbrettet.
+- Gjennomføre den siste leveransekontrollen.
+
+Jeg skal ikke markere innleveringen som ferdig før disse punktene er kontrollert.
+
+### 23.8 Hva jeg lærte av å bruke GitHub
+
+Jeg har lært at dokumentasjon er en viktig del av et IT-prosjekt.
+
+Det er ikke nok å få nettverket til å fungere hvis jeg ikke klarer å forklare hvordan det er bygget, hvilke tester jeg har gjennomført, eller hva jeg gjorde da noe gikk galt.
+
+Jeg har også erfart at det er lettere å dokumentere arbeidet mens jeg gjennomfører det, enn å prøve å samle alle detaljer etterpå.
+
+I ettertid oppdaget jeg at noen testresultater manglet direkte skjermbilder. Det gjorde arbeidet med den siste dokumentasjonen vanskeligere.
+
+Neste gang vil jeg være mer systematisk med filnavn, skjermbilder, arbeidslogg og commits fra starten av.
+
+Jeg trenger fortsatt mer erfaring med GitHub Projects og Kanban, men jeg forstår bedre hvorfor slike verktøy brukes til å planlegge og følge et prosjekt.
+
+Målet mitt videre er å bli bedre både på det tekniske arbeidet og på å dokumentere det på en ryddig måte.
