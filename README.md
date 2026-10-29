@@ -105,3 +105,80 @@ Ruteren fungerte som gateway og DHCP-server for klienten. SERVER01 skulle ha fas
 TP-Link-ruteren ble konfigurert gjennom nettleseren. Derfor brukte jeg ikke Cisco IOS-kommandoer på den fysiske ruteren.
 
 Etter at jeg hadde kontrollert tilkoblingene, gikk jeg videre til å konfigurere IP-adressene og teste kommunikasjonen mellom enhetene.
+
+## 4. IP-adresseplan og konfigurering
+
+### 4.1 Adresseplan
+
+Etter at jeg hadde koblet sammen utstyret, begynte jeg med IP-adressene.
+
+Jeg brukte nettverket `192.168.50.0/24`. Det betyr at enhetene i dette labnettet har subnettmasken `255.255.255.0`.
+
+| Enhet | IP-adresse | Subnettmaske | Gateway | Adressering |
+|---|---|---|---|---|
+| R1 | 192.168.50.1 | 255.255.255.0 | – | Fast |
+| SERVER01 | 192.168.50.10 | 255.255.255.0 | 192.168.50.1 | Fast |
+| CLIENT01 | 192.168.50.100 | 255.255.255.0 | 192.168.50.1 | DHCP |
+
+Jeg valgte å ha faste adresser på ruteren og serveren. CLIENT01 skulle få IP-adresse automatisk fra ruteren.
+
+### 4.2 Konfigurering av ruteren
+
+Jeg brukte en TP-Link Archer C50 som R1. For å konfigurere ruteren åpnet jeg administrasjonssiden i nettleseren.
+
+Jeg endret LAN-adressen til:
+
+- IP-adresse: `192.168.50.1`
+- Subnettmaske: `255.255.255.0`
+
+Etterpå konfigurerte jeg DHCP på ruteren.
+
+DHCP-området ble satt til:
+
+- Startadresse: `192.168.50.100`
+- Sluttadresse: `192.168.50.199`
+- Default gateway: `192.168.50.1`
+
+Jeg brukte dette området fordi klientene skulle få adresser automatisk. Samtidig ville jeg holde de lave adressene utenfor DHCP-området, slik at de kunne brukes til utstyr som skulle ha faste adresser.
+
+SERVER01 hadde for eksempel adressen `192.168.50.10`, som ikke ligger innenfor DHCP-området.
+
+### 4.3 Konfigurering av SERVER01
+
+Jeg satte opp SERVER01 med fast IP-adresse:
+
+- IP-adresse: `192.168.50.10`
+- Subnettmaske: `255.255.255.0`
+- Default gateway: `192.168.50.1`
+
+Serveren skulle bruke den samme adressen hele tiden, slik at klienten kunne finne den når jeg skulle teste ping og fildeling.
+
+Jeg brukte Windows sine nettverksinnstillinger til å konfigurere adressen.
+
+Windows Server ble senere installert på nytt. Jeg har ikke et nytt skjermbilde som bekrefter hele IP-konfigurasjonen etter reinstallasjonen. Derfor kan jeg ikke dokumentere den siste serverkonfigurasjonen fullt ut.
+
+### 4.4 Konfigurering av CLIENT01
+
+På CLIENT01 brukte jeg automatisk IP-adressering (DHCP).
+
+Etter at ruteren var konfigurert, fikk klienten adressen `192.168.50.100` fra DHCP-området.
+
+Jeg kontrollerte nettverksinnstillingene med Windows-kommandoen:
+
+`ipconfig /all`
+
+Jeg brukte denne kommandoen for å kontrollere blant annet IP-adressen, subnettmasken, gatewayen og DHCP-innstillingene.
+
+Under arbeidet hadde jeg også problemer med gamle nettverksinnstillinger og tilkoblingen på laptopen. Dette beskriver jeg nærmere i delen om feilsøking.
+
+### 4.5 Hvorfor jeg brukte denne løsningen
+
+Jeg brukte fast IP-adresse på SERVER01 fordi serveren skulle være tilgjengelig på en kjent adresse.
+
+CLIENT01 fikk IP-adresse automatisk med DHCP. Det gjør det enklere å koble klienter til nettverket uten å konfigurere IP-adressen manuelt på hver PC.
+
+Ruteren hadde adressen `192.168.50.1` og fungerte som standard gateway for enhetene.
+
+Jeg brukte samme subnett på klienten og serveren fordi de skulle kommunisere i det samme lokale nettverket.
+
+Etter konfigureringen testet jeg forbindelsen med ping. Resultatene fra disse testene dokumenterer jeg i testdelen av rapporten.
