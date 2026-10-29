@@ -1876,3 +1876,143 @@ DNS og HTTP viste meg hvordan flere protokoller kan brukes når en klient skal �
 Det jeg syntes var mest nyttig med Simulation Mode, var at jeg kunne følge pakkene gjennom nettverket og se hvilke enheter som behandlet dem.
 
 Samtidig forstår jeg at Simulation Mode er en simulering. Resultatene viser hvordan nettverket fungerte i Packet Tracer under testene, men er ikke målinger fra et fysisk bedriftsnettverk.
+
+
+## 19. Telnet som kontrollert labøvelse
+
+### 19.1 Hvorfor jeg testet Telnet
+
+I denne delen skulle jeg teste fjernadministrasjon av en ruter i Cisco Packet Tracer.
+
+Jeg brukte Telnet for å se hvordan jeg kunne koble til en ruter fra en klient og kjøre en kommando uten å bruke ruterens lokale konsoll.
+
+Telnet er en eldre protokoll som ikke krypterer kommunikasjonen. Derfor brukte jeg den bare som en avgrenset øvelse i Packet Tracer.
+
+### 19.2 Tilkobling fra PC-SALG
+
+Jeg åpnet Command Prompt på PC-SALG og skrev:
+
+```text
+telnet 192.168.40.1
+```
+
+Adressen `192.168.40.1` tilhørte grensesnittet på R2-SALG som var koblet til salgsnettverket.
+
+I den første tilkoblingen fikk jeg meldingen:
+
+```text
+Trying 192.168.40.1 ...Open
+
+User Access Verification
+Password:
+% Password: timeout expired.
+```
+
+Forbindelsen ble deretter lukket.
+
+Dette var ikke en vanlig nettverks-timeout. Telnet-forbindelsen ble åpnet, men passordinnloggingen ble ikke fullført før tidsfristen gikk ut.
+
+Jeg prøvde derfor å koble til på nytt.
+
+### 19.3 Vellykket innlogging
+
+Jeg kjørte samme kommando en gang til:
+
+```text
+telnet 192.168.40.1
+```
+
+Denne gangen fullførte jeg innloggingen og kom til:
+
+```text
+R2-SALG>
+```
+
+Det viste at jeg hadde fått tilgang til kommandolinjen på ruteren gjennom Telnet.
+
+Jeg skrev deretter:
+
+```text
+enable
+show ip interface brief
+```
+
+Resultatet viste blant annet:
+
+| Interface | IP-adresse | Status | Protocol |
+|---|---|---|---|
+| GigabitEthernet0/0 | 192.168.40.1 | up | up |
+| GigabitEthernet0/1 | 10.0.0.2 | up | up |
+| GigabitEthernet0/2 | unassigned | administratively down | down |
+| Vlan1 | unassigned | administratively down | down |
+
+Jeg kunne dermed kontrollere de aktive IP-grensesnittene på R2-SALG.
+
+GigabitEthernet0/0 var tilkoblet salgsnettverket, mens GigabitEthernet0/1 ble brukt til forbindelsen mot R1-HQ.
+
+### 19.4 Deaktivering av Telnet
+
+Etter at jeg hadde gjennomført øvelsen, skulle Telnet ikke være tilgjengelig videre på de VTY-linjene jeg konfigurerte.
+
+På R2-SALG brukte jeg disse kommandoene:
+
+```text
+enable
+configure terminal
+line vty 0 4
+transport input none
+no password
+end
+copy running-config startup-config
+```
+
+`line vty 0 4` valgte VTY-linjene 0 til 4.
+
+`transport input none` fjernet tillatelsen til innkommende fjernadministrasjonsprotokoller på disse linjene.
+
+`no password` fjernet passordet som var konfigurert på linjene. Det var `transport input none` som ble brukt til å stoppe innkommende tilkoblinger.
+
+Til slutt lagret jeg konfigurasjonen med:
+
+```text
+copy running-config startup-config
+```
+
+Ruteren viste:
+
+```text
+Building configuration...
+[OK]
+```
+
+Dette bekreftet at konfigurasjonen ble lagret.
+
+### 19.5 Begrensning i testen
+
+Jeg dokumenterte at Telnet-innloggingen fungerte, og at jeg kunne bruke `show ip interface brief` på R2-SALG.
+
+Jeg har også skjermbilde av kommandoene som endret VTY 0–4, og av at konfigurasjonen ble lagret.
+
+Jeg gjennomførte ikke en egen negativ test der jeg prøvde å koble til med Telnet etter deaktiveringen.
+
+Derfor kan jeg bekrefte at innstillingene ble brukt og lagret, men ikke vise et separat testresultat som bekrefter at en ny Telnet-tilkobling ble avvist.
+
+### 19.6 Hvorfor jeg ikke ville brukt Telnet i en bedrift
+
+Telnet sender blant annet innloggingsinformasjon uten kryptering. Det kan gjøre informasjonen tilgjengelig for noen som klarer å fange opp nettverkstrafikken.
+
+I en virkelig bedrift ville jeg derfor valgt SSH i stedet.
+
+SSH gir kryptert kommunikasjon ved fjernadministrasjon og er et sikrere alternativ.
+
+Jeg konfigurerte ikke SSH i denne øvelsen. Jeg nevner det som et alternativ jeg ville vurdert i en produksjonsløsning.
+
+### 19.7 Hva jeg lærte
+
+Jeg lærte at fjernadministrasjon er en nettverkstjeneste som kan brukes til å konfigurere og kontrollere en ruter.
+
+Jeg fikk erfaring med å koble til R2-SALG fra en klient, logge inn og bruke en visningskommando.
+
+Jeg lærte også at det ikke er nok å få en tjeneste til å fungere. Jeg må vurdere om tjenesten er sikker, og om den skal være aktiv etter at testen er ferdig.
+
+Denne øvelsen gjorde det lettere for meg å forstå forskjellen mellom å teste en eldre protokoll i et laboratorium og å velge en sikker løsning i et bedriftsnettverk.
