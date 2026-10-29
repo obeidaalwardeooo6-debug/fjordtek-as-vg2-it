@@ -1722,6 +1722,59 @@ Derfor måtte jeg også teste kommunikasjonen med ping og kontrollere DNS og HTT
 Jeg lærte forskjellen mellom en klient som får adresse automatisk og en server som bruker fast IP-adresse.
 
 
+### Skjermbilder av DHCP og klienttesting
+
+**PC-ADMIN – DHCP-konfigurasjon**
+
+Jeg brukte `ipconfig /all` for å kontrollere nettverksinnstillingene på PC-ADMIN.
+
+Bildet viser IPv4-adressen `192.168.10.100`, gateway `192.168.10.1`, DHCP-server `192.168.10.1` og DNS-server `192.168.30.10`.
+
+![DHCP-innstillinger på PC-ADMIN](images/packet-tracer/03-pc-admin-dhcp.png)
+
+**PC-ADMIN – Ping til gateway**
+
+Etterpå testet jeg forbindelsen til gatewayen med `ping 192.168.10.1`.
+
+Jeg fikk fire av fire svar og 0 % pakketap.
+
+![Ping fra PC-ADMIN til gateway](images/packet-tracer/04-pc-admin-ping-gateway.png)
+
+**PC-ADMIN2 – DHCP**
+
+Jeg konfigurerte PC-ADMIN2 til å hente IP-innstillinger automatisk.
+
+Packet Tracer viste meldingen `DHCP request successful`. Klienten fikk `192.168.10.101`, gateway `192.168.10.1` og DNS-server `192.168.30.10`.
+
+![DHCP på PC-ADMIN2](images/packet-tracer/10-pc-admin2-dhcp.png)
+
+**PC-SUPPORT – DHCP-innstillinger**
+
+Jeg kontrollerte PC-SUPPORT med `ipconfig /all`.
+
+Bildet viser IPv4-adressen `192.168.20.100`, gateway og DHCP-server `192.168.20.1`, og DNS-server `192.168.30.10`.
+
+![DHCP-innstillinger på PC-SUPPORT](images/packet-tracer/21-pc-support-dhcp.png)
+
+**PC-SUPPORT – Ping til SERVER01**
+
+Jeg testet deretter forbindelsen fra PC-SUPPORT til SERVER01 med `ping 192.168.30.10`.
+
+Testen ga fire av fire svar og 0 % pakketap.
+
+![Ping fra PC-SUPPORT til SERVER01](images/packet-tracer/22-pc-support-ping-server01.png)
+
+**PC-SALG – Kontroll av IP-adresse**
+
+Jeg brukte `ipconfig` på PC-SALG.
+
+Bildet viser IPv4-adressen `192.168.40.100`, subnettmasken `255.255.255.0` og gateway `192.168.40.1`.
+
+![IP-konfigurasjon på PC-SALG](images/packet-tracer/05-pc-salg-ipconfig.png)
+
+Dette bildet viser IP-konfigurasjonen, men ikke hvilken DHCP-server som eventuelt tildelte adressen. Jeg bruker derfor ikke bildet alene som bevis på DHCP-tildeling til PC-SALG.
+
+
 ## 17. DNS og HTTP på SERVER01
 
 ### 17.1 Hvorfor jeg brukte DNS og HTTP
@@ -1849,6 +1902,46 @@ Hvis nettsiden fungerer med IP-adresse, men ikke med navn, er det naturlig å un
 Jeg fikk brukt både DNS og HTTP i bedriftsnettverket og undersøkte kommunikasjonen i Simulation Mode.
 
 Testene mine viste at tjenestene fungerte på de forbindelsene jeg undersøkte. Jeg gjennomførte ikke en egen HTTPS-test eller en fullstendig test fra alle klientene.
+
+
+### Skjermbilder av SERVER01, DNS og HTTP
+
+**SERVER01 – Statisk IPv4-konfigurasjon**
+
+Jeg konfigurerte SERVER01 med fast IP-adresse i Packet Tracer.
+
+Bildet viser:
+
+- IPv4-adresse: `192.168.30.10`
+- Subnettmaske: `255.255.255.0`
+- Gateway: `192.168.30.1`
+- DNS-server: `192.168.30.10`
+
+![Statisk IP-konfigurasjon på SERVER01](images/packet-tracer/23-server01-statisk-ip.png)
+
+**SERVER01 – DNS-tjeneste**
+
+Jeg aktiverte DNS-tjenesten og la inn en A-post for intranettet:
+
+`intranett.fjordtek.local → 192.168.30.10`
+
+Bildet viser at DNS Service var satt til On, og at A-posten lå i listen over Resource Records.
+
+![DNS A Record på SERVER01](images/packet-tracer/24-server01-dns-a-record.png)
+
+**SERVER01 – HTTP og HTTPS**
+
+Jeg kontrollerte webtjenestene på SERVER01.
+
+Bildet viser at både HTTP og HTTPS var satt til On. Filen `index.html` var også tilgjengelig i File Manager.
+
+![HTTP og HTTPS på SERVER01](images/packet-tracer/25-server01-http-https-tjenester.png)
+
+Disse bildene dokumenterer serverinnstillingene og hvilke tjenester som var aktivert.
+
+De viser ikke alene at en klient fikk åpnet nettsiden i nettleseren. DNS- og HTTP-trafikken mellom PC-ADMIN og SERVER01 ble undersøkt separat i Simulation Mode, som er dokumentert i kapittel 18.
+
+Jeg gjennomførte ikke en egen HTTPS-test.
 
 
 ## 18. Testing i Simulation Mode
