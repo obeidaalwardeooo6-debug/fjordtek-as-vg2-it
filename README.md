@@ -393,15 +393,15 @@ Kommandoen viste en aktiv SMB-forbindelse fra klienten. Det var nyttig fordi jeg
 
 SMB bruker vanligvis TCP-port 445. Jeg undersøkte denne porten senere med Nmap.
 
-### 6.3 Problemer med Windows Firewall
+### 6.3 Brannmur og SMB
 
-I starten hadde jeg problemer med å få tilgang til fildelingen.
+Da jeg jobbet med serveren, lærte jeg at Windows Firewall kan påvirke hvilke nettverkstjenester klienten får kontakt med.
 
-Selv om nettverksforbindelsen fungerte, fikk ikke klienten brukt SMB-tjenesten slik jeg forventet.
+Etter reinstallasjonen hadde jeg en feil der serveradressen ikke svarte på ping. Jeg undersøkte Windows Firewall og aktiverte en regel for ICMPv4. Dette er dokumentert i kapittel 11.
 
-Jeg undersøkte derfor Windows Firewall på SERVER01 og kontrollerte innstillingene for fil- og skriverdeling. Etter at jeg endret brannmurinnstillingene, fikk jeg SMB-forbindelsen til å fungere.
+Denne endringen gjaldt ping, og jeg kan ikke bruke den som bevis på at SMB tidligere var blokkert.
 
-Jeg lærte at en vellykket ping ikke er nok til å vise at en nettverkstjeneste er tilgjengelig. Brannmuren kan tillate ICMP, men samtidig blokkere trafikk til en bestemt TCP-port.
+Jeg testet SMB separat. `Get-SmbConnection` viste en aktiv forbindelse til den delte mappen `Felles`, og Nmap viste at TCP-port 445 var åpen.
 
 ### 6.4 Testfil og dokumentasjon
 
@@ -739,3 +739,103 @@ Feilmeldingen `General failure` fortalte meg at klienten ikke klarte å sende pi
 Det viktigste jeg lærte, var å teste én ting om gangen og kontrollere resultatet etter at jeg hadde gjort en endring.
 
 Jeg dokumenterte feilsøkingen selv. Jeg har ikke dokumentert at en annen deltaker gjennomførte feilsøkingen, slik oppgaven også foreslo.
+
+
+## 11. Feilsøking av Windows Firewall etter reinstallasjon
+
+### 11.1 Problemet jeg opplevde – 21.10.2026
+
+Etter at jeg hadde installert Windows Server 2025 Standard på nytt på SERVER01, fikk jeg problemer med ping mot serveradressen `192.168.50.10`.
+
+Jeg kjørte:
+
+```powershell
+ping 192.168.50.10
+```
+
+Resultatet var:
+
+- Sendt: 4 pakker
+- Mottatt: 0 pakker
+- Pakketap: 100 %
+- Feilmelding: `Request timed out`
+
+Jeg hadde tidligere fått svar fra serveren, men etter reinstallasjonen måtte jeg kontrollere nettverket på nytt.
+
+### 11.2 Hvordan jeg undersøkte feilen
+
+Jeg ville finne ut hvorfor serveradressen ikke svarte på ping.
+
+Jeg undersøkte Windows Defender Firewall på SERVER01 ved å åpne:
+
+```text
+wf.msc
+```
+
+Jeg fant regelen:
+
+`Fil- og skriverdeling (ekkoforespørsel – ICMPv4-In)`
+
+Denne regelen styrer om Windows-brannmuren skal tillate innkommende ICMPv4 Echo Requests.
+
+Jeg aktiverte regelen slik at serveren kunne svare på ping.
+
+Etter endringen viste brannmurinnstillingen:
+
+- Aktivert: Ja
+- Handling: Tillat
+- Profil: Alle
+
+Jeg deaktiverte ikke hele Windows-brannmuren.
+
+### 11.3 Testing etter endringen
+
+Etter at jeg hadde aktivert regelen, testet jeg serveradressen på nytt:
+
+```powershell
+ping 192.168.50.10
+```
+
+Denne gangen fikk jeg fire svar:
+
+```text
+Reply from 192.168.50.10: bytes=32 time<1ms TTL=128
+```
+
+Resultatet var:
+
+| Kontroll | Resultat |
+|---|---|
+| Pakker sendt | 4 |
+| Pakker mottatt | 4 |
+| Pakketap | 0 % |
+| Responstid | Under 1 ms i svarlinjene |
+| TTL | 128 |
+
+Etter endringen svarte serveradressen på alle ping-forespørslene.
+
+### 11.4 Hva som var årsaken
+
+Ut fra testene og endringen jeg gjorde i brannmuren, vurderte jeg at blokkering av innkommende ICMPv4 var årsaken til at ping ikke fungerte.
+
+Resultatet støttet denne forklaringen fordi ping begynte å fungere etter at jeg tillot ICMPv4 Echo Requests.
+
+Jeg kan likevel ikke bruke ping-resultatet alene som bevis på at DNS eller SMB-fildeling fungerte.
+
+Disse tjenestene måtte testes separat.
+
+Jeg kan heller ikke fastslå sikkert hvilken maskin den opprinnelige PowerShell-testen ble kjørt fra, bare ut fra skjermbildet som var beskrevet i arbeidsloggen.
+
+### 11.5 Sikkerhet og refleksjon
+
+Jeg lærte at Windows Firewall kan blokkere en bestemt type nettverkstrafikk selv om maskinen er fysisk tilkoblet nettverket.
+
+Jeg lærte også at det er bedre å kontrollere og endre en bestemt brannmurregel enn å slå av hele brannmuren.
+
+Regelen jeg aktiverte, gjaldt alle nettverksprofiler. I et vanlig bedriftsnettverk ville jeg vurdert å begrense regelen til riktig profil og godkjente IP-adresser.
+
+Jeg fikk ping til å fungere igjen, men dette var ikke en fullstendig test av alle tjenester på serveren.
+
+SMB-forbindelsen ble undersøkt separat med `Get-SmbConnection`, Nmap og Wireshark.
+
+Jeg mangler fortsatt et fullstendig skjermbilde av den endelige IP-konfigurasjonen på SERVER01 etter reinstallasjonen.
