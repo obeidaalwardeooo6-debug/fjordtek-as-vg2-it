@@ -110,79 +110,157 @@ Etter at jeg hadde kontrollert tilkoblingene, gikk jeg videre til å konfigurere
 
 ### 4.1 Adresseplan
 
-Etter at jeg hadde koblet sammen utstyret, begynte jeg med IP-adressene.
+Jeg brukte nettverket `192.168.50.0/24` i den fysiske laben. Subnettmasken var `255.255.255.0`.
 
-Jeg brukte nettverket `192.168.50.0/24`. Det betyr at enhetene i dette labnettet har subnettmasken `255.255.255.0`.
+| Enhet | IP-adresse | Gateway | Tildeling |
+|---|---|---|---|
+| R1 | 192.168.50.1 | – | Fast LAN-adresse |
+| SERVER01 | 192.168.50.10 | 192.168.50.1 | Statisk |
+| CLIENT01 – manuell test | 192.168.50.20 | 192.168.50.1 | Statisk |
+| CLIENT01 – DHCP-test | 192.168.50.100 | 192.168.50.1 | DHCP |
 
-| Enhet | IP-adresse | Subnettmaske | Gateway | Adressering |
-|---|---|---|---|---|
-| R1 | 192.168.50.1 | 255.255.255.0 | – | Fast |
-| SERVER01 | 192.168.50.10 | 255.255.255.0 | 192.168.50.1 | Fast |
-| CLIENT01 | 192.168.50.100 | 255.255.255.0 | 192.168.50.1 | DHCP |
+Jeg ville ha en fast adresse på serveren, slik at klienten alltid kunne bruke samme IP-adresse for å få tilgang til den.
 
-Jeg valgte å ha faste adresser på ruteren og serveren. CLIENT01 skulle få IP-adresse automatisk fra ruteren.
+På CLIENT01 testet jeg først manuell IP-konfigurasjon og senere DHCP.
 
-### 4.2 Konfigurering av ruteren
+### 4.2 Konfigurering av R1 – 20.10.2026
 
-Jeg brukte en TP-Link Archer C50 som R1. For å konfigurere ruteren åpnet jeg administrasjonssiden i nettleseren.
+Jeg brukte en TP-Link Archer C50 V4 som ruter.
 
-Jeg endret LAN-adressen til:
+Da jeg først åpnet administrasjonssiden, hadde ruteren LAN-adressen `192.168.0.1`.
 
-- IP-adresse: `192.168.50.1`
-- Subnettmaske: `255.255.255.0`
+Jeg endret adressen til `192.168.50.1`, slik at den passet med adresseplanen min.
 
-Etterpå konfigurerte jeg DHCP på ruteren.
+Etter endringen mistet CLIENT01 midlertidig tilgang til administrasjonssiden fordi nettverksinnstillingene på klienten ikke lenger passet med den nye adressen.
 
-DHCP-området ble satt til:
+Jeg brukte derfor:
 
-- Startadresse: `192.168.50.100`
-- Sluttadresse: `192.168.50.199`
-- Default gateway: `192.168.50.1`
+```cmd
+ipconfig /release
+ipconfig /renew
+```
 
-Jeg brukte dette området fordi klientene skulle få adresser automatisk. Samtidig ville jeg holde de lave adressene utenfor DHCP-området, slik at de kunne brukes til utstyr som skulle ha faste adresser.
+Etterpå fikk klienten IP-adressen `192.168.50.100`, og jeg kunne åpne administrasjonssiden på `http://192.168.50.1`.
 
-SERVER01 hadde for eksempel adressen `192.168.50.10`, som ikke ligger innenfor DHCP-området.
+Jeg testet også forbindelsen med `ping 192.168.50.1` og fikk svar.
 
-### 4.3 Konfigurering av SERVER01
+### 4.3 Kontroll av DHCP på ruteren
 
-Jeg satte opp SERVER01 med fast IP-adresse:
+Jeg åpnet **DHCP → DHCP Settings** på ruteren og kontrollerte innstillingene.
+
+| Innstilling | Verdi |
+|---|---|
+| DHCP Server | Enabled |
+| Start IP Address | 192.168.50.100 |
+| End IP Address | 192.168.50.199 |
+| Lease Time | 120 minutter |
+| Default Gateway | 192.168.50.1 |
+| DNS Server | 0.0.0.0 |
+| Secondary DNS Server | 0.0.0.0 |
+
+DHCP var allerede aktivert med riktig adresseområde da jeg kontrollerte denne siden. Jeg trengte derfor ikke å endre innstillingene.
+
+DNS-feltene hadde ingen eksplisitt DNS-adresse i ruterens oppsett.
+
+Jeg brukte DHCP-området fra `.100` til `.199` for å holde adressene til ruteren og serveren utenfor området som ble delt ut automatisk.
+
+### 4.4 Statisk IP på SERVER01
+
+Jeg jobbet med å sette SERVER01 til:
 
 - IP-adresse: `192.168.50.10`
 - Subnettmaske: `255.255.255.0`
 - Default gateway: `192.168.50.1`
 
-Serveren skulle bruke den samme adressen hele tiden, slik at klienten kunne finne den når jeg skulle teste ping og fildeling.
+Jeg brukte `ncpa.cpl` for å åpne nettverkstilkoblingene og endre IPv4-innstillingene.
 
-Jeg brukte Windows sine nettverksinnstillinger til å konfigurere adressen.
+Serveren ble senere installert på nytt med Windows Server 2025. Etter reinstallasjonen fikk jeg igjen svar fra `192.168.50.10`, men jeg mangler en fullstendig `ipconfig /all` fra SERVER01 som bekrefter alle innstillingene i den siste installasjonen.
 
-Windows Server ble senere installert på nytt. Jeg har ikke et nytt skjermbilde som bekrefter hele IP-konfigurasjonen etter reinstallasjonen. Derfor kan jeg ikke dokumentere den siste serverkonfigurasjonen fullt ut.
+Derfor er serverens endelige IP-konfigurasjon ikke fullt dokumentert med et eget skjermbilde.
 
-### 4.4 Konfigurering av CLIENT01
+### 4.5 Første test med statisk IP på CLIENT01 – 21.10.2026
 
-På CLIENT01 brukte jeg automatisk IP-adressering (DHCP).
+Jeg testet CLIENT01 med disse innstillingene:
 
-Etter at ruteren var konfigurert, fikk klienten adressen `192.168.50.100` fra DHCP-området.
+| Innstilling | Verdi |
+|---|---|
+| IPv4-adresse | 192.168.50.20 |
+| Subnettmaske | 255.255.255.0 |
+| Default gateway | 192.168.50.1 |
 
-Jeg kontrollerte nettverksinnstillingene med Windows-kommandoen:
+Jeg kontrollerte adressene med `ipconfig`.
 
-`ipconfig /all`
+Deretter kjørte jeg:
 
-Jeg brukte denne kommandoen for å kontrollere blant annet IP-adressen, subnettmasken, gatewayen og DHCP-innstillingene.
+```cmd
+ping 192.168.50.1
+ping 192.168.50.10
+```
 
-Under arbeidet hadde jeg også problemer med gamle nettverksinnstillinger og tilkoblingen på laptopen. Dette beskriver jeg nærmere i delen om feilsøking.
+Jeg fikk fire svar fra både ruteren og serveren, uten pakketap.
 
-### 4.5 Hvorfor jeg brukte denne løsningen
+Dette viste at klienten kunne kommunisere med begge enhetene med den manuelle IP-konfigurasjonen.
 
-Jeg brukte fast IP-adresse på SERVER01 fordi serveren skulle være tilgjengelig på en kjent adresse.
+### 4.6 DHCP-test på CLIENT01 – 21.10.2026
 
-CLIENT01 fikk IP-adresse automatisk med DHCP. Det gjør det enklere å koble klienter til nettverket uten å konfigurere IP-adressen manuelt på hver PC.
+Etter testen med statisk IP satte jeg Ethernet 2 på CLIENT01 tilbake til automatisk IP-adressering.
 
-Ruteren hadde adressen `192.168.50.1` og fungerte som standard gateway for enhetene.
+Jeg brukte USB-Ethernet-adapteren **ASIX AX88179 USB 3.0 to Gigabit Ethernet Adapter**.
 
-Jeg brukte samme subnett på klienten og serveren fordi de skulle kommunisere i det samme lokale nettverket.
+Deretter kontrollerte jeg innstillingene med:
 
-Etter konfigureringen testet jeg forbindelsen med ping. Resultatene fra disse testene dokumenterer jeg i testdelen av rapporten.
+```cmd
+ipconfig /all
+```
 
+Dette var resultatet:
+
+| Innstilling | Resultat |
+|---|---|
+| DHCP Enabled | Yes |
+| IPv4 Address | 192.168.50.100 |
+| Subnet Mask | 255.255.255.0 |
+| Default Gateway | 192.168.50.1 |
+| DHCP Server | 192.168.50.1 |
+| DNS Servers | 192.168.50.1 |
+| Lease Obtained | 21.10.2026 kl. 09:57:21 |
+| Lease Expires | 21.10.2026 kl. 11:57:20 |
+
+Her kunne jeg bekrefte at CLIENT01 fikk adressen fra R1.
+
+Leietiden var omtrent 120 minutter, som stemte med DHCP-innstillingene på ruteren.
+
+### 4.7 Kontroll av forbindelsen etter DHCP
+
+Etter DHCP-testen kjørte jeg Ping på nytt:
+
+```cmd
+ping 192.168.50.1
+ping 192.168.50.10
+```
+
+Resultatene var:
+
+| Mål | Sendt | Mottatt | Pakketap |
+|---|---|---|---|
+| R1 – 192.168.50.1 | 4 | 4 | 0 % |
+| SERVER01 – 192.168.50.10 | 4 | 4 | 0 % |
+
+Jeg fikk svar fra begge enhetene etter overgangen til DHCP.
+
+Dette viste at klienten hadde fått riktige nettverksinnstillinger og fortsatt kunne kommunisere med ruteren og serveren.
+
+### 4.8 Hva jeg lærte
+
+Jeg lærte forskjellen mellom statisk IP og DHCP.
+
+Med statisk IP måtte jeg skrive inn adressen selv. Med DHCP fikk klienten automatisk IP-adresse, gateway og DNS-innstillinger.
+
+Jeg lærte også at når jeg endrer LAN-adressen på en ruter, må klientens nettverksinnstillinger passe med det nye subnettet.
+
+Testene mine viste at DHCP fungerte, men jeg har ikke ett sammenhengende skjermbilde som viser hele prosessen fra `ipconfig /release` og `ipconfig /renew` til den siste Ping-testen.
+
+Jeg har derfor dokumentert de registrerte testene og resultatene hver for seg.
 
 ## 5. Testing av fysisk nettverk
 
