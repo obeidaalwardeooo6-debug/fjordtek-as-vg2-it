@@ -1681,3 +1681,198 @@ Hvis nettsiden fungerer med IP-adresse, men ikke med navn, er det naturlig å un
 Jeg fikk brukt både DNS og HTTP i bedriftsnettverket og undersøkte kommunikasjonen i Simulation Mode.
 
 Testene mine viste at tjenestene fungerte på de forbindelsene jeg undersøkte. Jeg gjennomførte ikke en egen HTTPS-test eller en fullstendig test fra alle klientene.
+
+
+## 18. Testing i Simulation Mode
+
+### 18.1 Hvorfor jeg brukte Simulation Mode
+
+Etter at jeg hadde konfigurert nettverket i Cisco Packet Tracer, brukte jeg Simulation Mode for å undersøke hvordan pakkene beveget seg mellom enhetene.
+
+I Realtime Mode kunne jeg kontrollere om kommunikasjonen fungerte. Med Simulation Mode kunne jeg følge hendelsene steg for steg og se hvilke protokoller som ble brukt.
+
+Jeg gjennomførte tre tester:
+
+1. ARP og ICMP mellom to klienter i samme VLAN.
+2. ICMP mellom Administrasjon og Salg.
+3. DNS og HTTP mellom PC-ADMIN og SERVER01.
+
+### 18.2 Test 1 – ARP og ICMP i samme VLAN
+
+Jeg brukte to klienter i VLAN 10:
+
+- PC-ADMIN2: `192.168.10.101`
+- PC-ADMIN: `192.168.10.100`
+
+Begge klientene var koblet til SW-ADMIN og brukte samme subnett.
+
+Jeg startet Simulation Mode og undersøkte kommunikasjonen fra PC-ADMIN2 til PC-ADMIN.
+
+Jeg valgte ARP og ICMP som synlige protokoller i Event List.
+
+**ARP**
+
+I starten kunne jeg se ARP-meldinger fra PC-ADMIN2.
+
+Event List viste blant annet:
+
+| Tid (s) | Fra | Til | Protokoll |
+|---|---|---|---|
+| 0.000 | PC-ADMIN2 | SW-ADMIN | ARP |
+| 0.002 | SW-ADMIN | PC-ADMIN | ARP |
+| 0.003 | PC-ADMIN | SW-ADMIN | ARP |
+| 0.004 | SW-ADMIN | PC-ADMIN2 | ARP |
+
+Jeg kunne også se en ARP-melding fra SW-ADMIN mot SW-CORE-HQ. Dette var knyttet til videresending av ARP-trafikk i nettverket, ikke at kommunikasjonen mellom klientene måtte rutes til et annet subnett.
+
+Jeg lærte at ARP brukes til å finne MAC-adressen som hører til en IPv4-adresse i det lokale nettverket.
+
+**ICMP**
+
+Etter ARP-meldingene kunne jeg se ICMP-trafikk mellom PC-ADMIN2 og PC-ADMIN.
+
+Jeg observerte både Echo Request og Echo Reply. I en senere del av simuleringen viste Event List flere ICMP-hendelser mellom klientene via SW-ADMIN.
+
+Dette viste at de to klientene kunne kommunisere i samme VLAN uten å gå gjennom en IP-ruter.
+
+### 18.3 Test 2 – ICMP fra Administrasjon til Salg
+
+I den andre testen undersøkte jeg kommunikasjonen mellom to forskjellige nettverk.
+
+Jeg sendte ICMP fra PC-ADMIN til PC-SALG.
+
+- PC-ADMIN: `192.168.10.100`
+- PC-SALG: `192.168.40.100`
+
+Event List viste denne veien for forespørselen:
+
+```text
+PC-ADMIN
+   ↓
+SW-ADMIN
+   ↓
+SW-CORE-HQ
+   ↓
+R1-HQ
+   ↓
+R2-SALG
+   ↓
+SW-SALG
+   ↓
+PC-SALG
+```
+
+De synlige hendelsene var:
+
+| Tid (s) | Fra | Til |
+|---|---|---|
+| 0.001 | PC-ADMIN | SW-ADMIN |
+| 0.002 | SW-ADMIN | SW-CORE-HQ |
+| 0.003 | SW-CORE-HQ | R1-HQ |
+| 0.004 | R1-HQ | R2-SALG |
+| 0.005 | R2-SALG | SW-SALG |
+| 0.006 | SW-SALG | PC-SALG |
+
+Etterpå kunne jeg følge svartrafikken fra PC-SALG tilbake mot PC-ADMIN.
+
+Ved simuleringstid `0.012 s` viste Event List at ICMP-svaret hadde kommet tilbake til PC-ADMIN.
+
+**Hva jeg fant ut**
+
+Denne testen viste at trafikken kunne gå mellom Administrasjon og Salg gjennom de konfigurerte rutingsenhetene.
+
+Jeg kunne se forskjellen mellom kommunikasjon innenfor samme VLAN og kommunikasjon mellom forskjellige IP-nettverk.
+
+Tidene i Event List var simuleringstider fra Packet Tracer, ikke målinger av responstid i et fysisk bedriftsnettverk.
+
+### 18.4 Test 3 – DNS mellom PC-ADMIN og SERVER01
+
+Jeg undersøkte også hva som skjedde når PC-ADMIN brukte intranettnavnet:
+
+`intranett.fjordtek.local`
+
+DNS-serveren var SERVER01 på `192.168.30.10`.
+
+Jeg valgte DNS og HTTP som synlige protokoller i Simulation Mode.
+
+I Event List kunne jeg følge DNS-trafikken mellom PC-ADMIN og SERVER01.
+
+Forespørselen gikk gjennom:
+
+```text
+PC-ADMIN
+   ↓
+SW-ADMIN
+   ↓
+SW-CORE-HQ
+   ↓
+SW-SERVER
+   ↓
+SERVER01
+```
+
+Jeg kunne også se DNS-trafikk i motsatt retning.
+
+På SERVER01 hadde jeg konfigurert en A-post:
+
+`intranett.fjordtek.local → 192.168.30.10`
+
+Denne testen hjalp meg å forstå hvordan DNS brukes når en klient skal kontakte en server ved hjelp av et navn.
+
+Skjermbildet viste DNS-hendelser mellom klienten og serveren. Jeg brukte også DNS-konfigurasjonen på SERVER01 for å dokumentere hvilken adresse navnet skulle peke til.
+
+### 18.5 HTTP Request og Response
+
+Etter DNS-testen undersøkte jeg HTTP-trafikken.
+
+Jeg kunne følge en HTTP-forespørsel fra PC-ADMIN til SERVER01.
+
+Event List viste:
+
+| Tid (s) | Fra | Til |
+|---|---|---|
+| 0.018 | PC-ADMIN | SW-ADMIN |
+| 0.019 | SW-ADMIN | SW-CORE-HQ |
+| 0.020 | SW-CORE-HQ | SW-SERVER |
+| 0.021 | SW-SERVER | SERVER01 |
+
+Etterpå viste hendelseslisten HTTP-trafikk tilbake fra SERVER01 til PC-ADMIN:
+
+| Tid (s) | Fra | Til |
+|---|---|---|
+| 0.022 | SERVER01 | SW-SERVER |
+| 0.023 | SW-SERVER | SW-CORE-HQ |
+| 0.024 | SW-CORE-HQ | SW-ADMIN |
+| 0.025 | SW-ADMIN | PC-ADMIN |
+
+Dette viste en HTTP-forespørsel og tilhørende svartrafikk gjennom nettverket.
+
+Jeg hadde tidligere registrert at intranettsiden kunne åpnes i nettleseren. Simulation Mode ga meg i tillegg mulighet til å se nettverkstrafikken som var knyttet til HTTP.
+
+Skjermbildet av Event List dokumenterer HTTP-trafikken, men viser ikke alene hvordan selve nettsiden så ut i nettleseren.
+
+### 18.6 Ekstra observasjon – ARP i Salg
+
+Jeg undersøkte også ARP mellom PC-SALG og den lokale gatewayen R2-SALG.
+
+PC-SALG hadde adressen `192.168.40.100`, og gatewayen var `192.168.40.1`.
+
+I Event List kunne jeg se ARP-trafikk mellom PC-SALG, SW-SALG og R2-SALG før videre ICMP-kommunikasjon.
+
+Dette var nyttig fordi jeg kunne se at en klient også trenger å finne MAC-adressen til gatewayen når den skal sende trafikk til et annet IP-nettverk.
+
+Denne observasjonen var en ekstra test og ikke en erstatning for de tre hovedtestene.
+
+### 18.7 Hva jeg lærte
+
+Jeg fikk bedre forståelse av hvordan ARP, ICMP, DNS og HTTP brukes i nettverket.
+
+ARP hjalp klientene med å finne riktige MAC-adresser i det lokale nettverket. ICMP brukte jeg til å undersøke kommunikasjon mellom enheter.
+
+Jeg lærte også at trafikk mellom forskjellige subnett må sendes gjennom enheter som utfører ruting.
+
+DNS og HTTP viste meg hvordan flere protokoller kan brukes når en klient skal åpne en nettside med et domenenavn.
+
+Det jeg syntes var mest nyttig med Simulation Mode, var at jeg kunne følge pakkene gjennom nettverket og se hvilke enheter som behandlet dem.
+
+Samtidig forstår jeg at Simulation Mode er en simulering. Resultatene viser hvordan nettverket fungerte i Packet Tracer under testene, men er ikke målinger fra et fysisk bedriftsnettverk.
