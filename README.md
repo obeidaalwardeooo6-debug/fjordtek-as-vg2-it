@@ -2274,3 +2274,293 @@ Samtidig har jeg lært at det ikke er nok å få noe til å fungere. Jeg må ogs
 Jeg vurderer derfor ikke alle kravene som like godt dokumentert.
 
 Akseptansetesten blir endelig ferdig når jeg har lagt inn de opprinnelige bevisene i det nye repositoryet og kontrollert leveransen.
+
+## 22. Oppsummering og egenvurdering
+
+### 22.1 Hvordan jeg opplevde prosjektet
+
+Dette prosjektet har vært både lærerikt og utfordrende for meg. Jeg har jobbet med et fysisk nettverk på skolen og et større bedriftsnettverk i Cisco Packet Tracer.
+
+Jeg har fått mye praktisk erfaring, men jeg vil også være ærlig om hvordan jeg vurderer min egen innsats og forståelse.
+
+Jeg er fornøyd med at jeg fikk bygget nettverkene og gjennomført mange tester. Samtidig er jeg ikke helt fornøyd med hvor godt jeg behersker alt jeg har jobbet med.
+
+Jeg har lært mye underveis, men det er fortsatt flere ting jeg synes er vanskelige å huske og forklare uten å bruke notater eller få hjelp.
+
+Jeg merker at det er forskjell på å gjennomføre en oppgave med veiledning og å kunne gjennomføre den helt selvstendig.
+
+For meg er dette en viktig forskjell.
+
+Jeg ønsker ikke bare å få et nettverk til å fungere. Jeg vil forstå hvorfor det fungerer, hvordan jeg skal finne feil, og hvordan jeg kan bygge det opp igjen uten å følge den samme oppskriften.
+
+Det føler jeg ikke at jeg mestrer fullt ut ennå.
+
+### 22.2 Hva jeg lærte av det fysiske nettverket
+
+I den første delen jobbet jeg med en TP-Link-ruter, en switch, Windows Server og min egen laptop.
+
+Jeg fikk praktisk erfaring med hvordan enhetene kobles sammen, og hvordan IP-adresser, subnettmasker og gateway brukes.
+
+Jeg lærte forskjellen mellom statisk IP og DHCP ved å teste begge deler på CLIENT01.
+
+Jeg forstod også bedre hvorfor en server bør ha en kjent og stabil IP-adresse, mens en vanlig klient kan få nettverksinnstillingene automatisk.
+
+En viktig erfaring var at en nettverksforbindelse kan ha flere forskjellige problemer.
+
+Da jeg fjernet USB-Ethernet-adapteren fra CLIENT01, mistet jeg kontakten med serveren. Jeg brukte `Get-NetAdapter` og `ping` til å undersøke problemet og kontrollere forbindelsen etter at adapteren var satt tilbake.
+
+Jeg fikk også erfaring med Windows Firewall etter reinstallasjonen av SERVER01. Der lærte jeg at brannmuren kan blokkere ICMP selv om enheten er koblet til nettverket.
+
+Jeg forstod mer av disse problemene da jeg jobbet med dem i praksis.
+
+Likevel trenger jeg fortsatt trening på å finne lignende feil uten å vite på forhånd hva årsaken er.
+
+### 22.3 Hva jeg lærte av Packet Tracer
+
+I Packet Tracer bygde jeg et større nettverk for FjordTek AS.
+
+Jeg jobbet med VLAN, Inter-VLAN Routing, statisk ruting, DHCP, DNS og HTTP.
+
+Det var nyttig å se hvordan flere nettverk kunne kobles sammen, og hvordan en klient i én avdeling kunne kommunisere med en server i en annen.
+
+Jeg lærte også mer om rutetabeller og forskjellen mellom direkte tilkoblede nettverk, statiske ruter og standardruter.
+
+Det var spesielt nyttig å bruke `show ip route` og `tracert`, fordi jeg kunne se hvilke veier trafikken tok gjennom nettverket.
+
+Samtidig synes jeg fortsatt at ruting og subnetting er krevende.
+
+Jeg kan forstå en forklaring når jeg får den, men det betyr ikke alltid at jeg klarer å konfigurere hele løsningen selv etterpå.
+
+Jeg trenger derfor mer øvelse på å lage adresseplaner, konfigurere VLAN og skrive statiske ruter uten å se på den ferdige konfigurasjonen.
+
+### 22.4 Hva jeg lærte av feilsøking
+
+Feilsøking var en av de viktigste delene av prosjektet.
+
+Jeg lærte at det er bedre å undersøke en feil systematisk enn å endre flere innstillinger tilfeldig.
+
+Da forbindelsen mellom SW-CORE-HQ og R1-HQ ikke fungerte, undersøkte jeg oppkoblingen og fant at kabelen var koblet til feil port.
+
+Etter at jeg rettet tilkoblingen, fikk jeg fem av fem svar fra ruteren.
+
+Jeg lærte også at et testresultat ikke alltid forteller hele historien.
+
+Da jeg testet fra PC-SALG til SERVER01, fikk jeg først 75 % pakketap. Ved neste test fikk jeg 0 % pakketap.
+
+Jeg kunne se at resultatet var blitt bedre, men jeg hadde ikke nok informasjon til å fastslå hvorfor de første pakkene gikk tapt.
+
+Dette lærte meg at jeg må skille mellom det jeg har bevist, og det jeg tror kan være årsaken.
+
+Jeg trenger fortsatt mer trening i å velge riktig test når jeg møter en ukjent feil.
+
+### 22.5 Bruk av nettverksverktøy
+
+Jeg fikk bruke flere verktøy, blant annet `ping`, `ipconfig`, `tracert`, Nmap og Wireshark.
+
+Jeg lærte at de har forskjellige oppgaver.
+
+Med ping kunne jeg teste ICMP-kommunikasjon. Med Nmap kunne jeg undersøke TCP-porter, mens Wireshark lot meg se nærmere på nettverkspakker.
+
+I Packet Tracer brukte jeg Simulation Mode for å undersøke ARP, ICMP, DNS og HTTP.
+
+Jeg synes disse verktøyene er interessante, men jeg merker at jeg ikke kan tolke alle resultatene like godt ennå.
+
+Noen ganger trenger jeg å få forklart hva en bestemt verdi eller melding betyr.
+
+Jeg ønsker å bli flinkere til å lese resultatene selv og forstå hva de forteller om nettverket.
+
+### 22.6 Hva jeg syntes var vanskelig
+
+Det vanskeligste for meg var å holde oversikt over alle innstillingene og forstå hvordan de påvirket hverandre.
+
+I Packet Tracer måtte jeg tenke på IP-adresser, subnettmasker, VLAN, gateway, grensesnitt og rutetabeller samtidig.
+
+Jeg kunne forstå én del av konfigurasjonen, men bli usikker når jeg skulle koble flere deler sammen.
+
+Jeg syntes også det var utfordrende å huske Cisco-kommandoene og vite hvilken kommando jeg skulle bruke i en bestemt situasjon.
+
+En annen utfordring var å forklare tekniske begreper med mine egne ord.
+
+Det er lettere for meg å forstå en forklaring når jeg leser den, enn å forklare det samme uten hjelp etterpå.
+
+Dette er noe jeg ønsker å forbedre.
+
+### 22.7 Hvorfor jeg ikke er helt fornøyd med mitt eget nivå
+
+Selv om prosjektet inneholder mange vellykkede tester, er jeg ikke helt fornøyd med min egen forståelse ennå.
+
+Jeg har klart å gjennomføre mange oppgaver, men jeg har også hatt behov for forklaringer, veiledning og notater underveis.
+
+Hvis jeg skulle bygget hele FjordTek AS-nettverket på nytt uten å se på det gamle prosjektet, tror jeg at flere deler fortsatt ville vært utfordrende.
+
+Jeg ville sannsynligvis trengt å repetere spesielt VLAN-konfigurasjon, statisk ruting, DHCP og kontroll av rutetabeller.
+
+Jeg ønsker å komme til et nivå der jeg ikke bare kjenner igjen kommandoene, men også kan velge og bruke dem selv.
+
+Jeg er derfor mer fornøyd med fremgangen min enn med hvor selvstendig jeg er akkurat nå.
+
+Det betyr ikke at jeg ikke har lært noe. Tvert imot har jeg lært mye, men prosjektet har også vist meg hvor mye jeg fortsatt trenger å øve på.
+
+Jeg vil ikke si at jeg behersker noe fullt ut bare fordi jeg fikk det til én gang.
+
+For meg vil det å mestre en oppgave bety at jeg kan gjennomføre den flere ganger, forklare hvorfor jeg gjør det, og finne feil hvis resultatet ikke blir som forventet.
+
+Det er dette nivået jeg ønsker å jobbe mot.
+
+### 22.8 Hvordan jeg brukte kunstig intelligens i læringsarbeidet
+
+Under prosjektet brukte jeg også kunstig intelligens som et hjelpemiddel.
+
+Jeg brukte det blant annet til å få forklart nettverksbegreper, forstå kommandoer og få eksempler når noe var vanskelig.
+
+Når jeg ikke forstod hvorfor en bestemt konfigurasjon var nødvendig, kunne jeg stille spørsmål og få en forklaring med enklere ord.
+
+Dette var spesielt nyttig når jeg jobbet med VLAN, ruting, DHCP, DNS og tolkning av testresultater.
+
+Jeg har også brukt kunstig intelligens som støtte til å organisere og formulere deler av dokumentasjonen på norsk.
+
+Det praktiske prosjektet, konfigurasjonene og testresultatene bygger på arbeidet jeg gjennomførte med nettverket og i Packet Tracer.
+
+Samtidig vil jeg være åpen om at jeg har fått hjelp til både faglige forklaringer og skriftlig fremstilling.
+
+Jeg ser både fordeler og begrensninger med denne måten å lære på.
+
+Fordelen er at jeg kan få en forklaring når jeg står fast, og stille oppfølgingsspørsmål til jeg forstår mer.
+
+Utfordringen er at jeg noen ganger kan oppleve at jeg forstår et tema når jeg leser forklaringen, men likevel ikke klarer å gjennomføre oppgaven selv etterpå.
+
+Derfor er jeg opptatt av at kunstig intelligens ikke skal erstatte min egen forståelse eller praktiske trening.
+
+Jeg må også være kritisk til svarene jeg får. En forklaring eller en foreslått kommando er ikke automatisk riktig, og jeg må kontrollere det mot oppgaven, konfigurasjonen og de faktiske testresultatene.
+
+Jeg ønsker å bli mindre avhengig av hjelp når jeg skal løse oppgaver.
+
+Målet mitt er å bruke kunstig intelligens som støtte når jeg lærer, men etter hvert kunne forklare og utføre flere av oppgavene på egen hånd.
+
+### 22.9 Hvorfor jeg trenger repetisjon og mer praktisk trening
+
+Jeg har merket at jeg lærer best når jeg får jobbe praktisk og gjenta oppgavene.
+
+Det er ikke nok for meg å lese en forklaring én gang.
+
+Jeg trenger å bruke kunnskapen flere ganger for å huske den og forstå den bedre.
+
+Hvis det går en stund uten at jeg jobber med nettverk, kan jeg bli usikker på kommandoer og fremgangsmåter jeg tidligere har brukt.
+
+Jeg vil derfor repetere de grunnleggende oppgavene i stedet for å gå for raskt videre til mer avanserte temaer.
+
+Jeg ønsker spesielt å trene mer på:
+
+- IP-adressering og subnetting.
+- Konfigurering av VLAN og accessporter.
+- Inter-VLAN Routing og statiske ruter.
+- DHCP-konfigurasjon og kontroll av klientinnstillinger.
+- Å lese `show ip route` og forstå next-hop.
+- Å bruke Nmap og Wireshark til å undersøke feil.
+- Å forklare resultatene med mine egne ord.
+
+Jeg vil også øve på å gjennomføre oppgaver uten å se på løsningen først.
+
+Hvis jeg står fast, kan jeg bruke notatene mine eller få en forklaring. Deretter vil jeg prøve den samme oppgaven på nytt uten hjelp.
+
+På denne måten kan jeg kontrollere om jeg faktisk har lært noe, eller om jeg bare fulgte instruksjonene.
+
+### 22.10 Hvordan jeg ønsker å øve videre
+
+Jeg ønsker å lage en enkel plan for videre trening.
+
+Først vil jeg bygge et lite nettverk i Packet Tracer med én ruter, én switch og to klienter.
+
+Deretter vil jeg konfigurere IP-adressene selv og teste kommunikasjonen.
+
+Når jeg mestrer dette bedre, vil jeg legge til flere VLAN og øve på ruting mellom dem.
+
+Etterpå vil jeg prøve å koble sammen to rutere med statiske ruter, uten å kopiere konfigurasjonen fra dette prosjektet.
+
+Jeg vil også lage noen kontrollerte feil, for eksempel feil subnettmaske, feil gateway, feil VLAN eller manglende rute.
+
+Da vil jeg prøve å undersøke problemet selv før jeg leser en forklaring eller ber om hjelp.
+
+Jeg tror det vil være en god måte å utvikle den praktiske forståelsen min på.
+
+Etter hver øvelse vil jeg prøve å forklare hva jeg gjorde, hvorfor jeg gjorde det, og hvordan jeg kontrollerte at det fungerte.
+
+Jeg tror at når jeg klarer å forklare en oppgave uten å lese fra notatene, er det et tegn på at jeg har forstått mer.
+
+### 22.11 Hva jeg ville gjort annerledes
+
+Hvis jeg skulle gjennomført prosjektet på nytt, ville jeg vært mer systematisk fra starten.
+
+Jeg ville laget en tydeligere plan for dokumentasjon og tatt skjermbilder med en gang jeg hadde gjennomført en test.
+
+Jeg oppdaget at jeg hadde skrevet ned flere resultater, men at jeg manglet enkelte skjermbilder som kunne bekrefte dem direkte.
+
+Jeg ville også brukt mer tid på å kontrollere at en løsning fungerer over flere tester, i stedet for å være fornøyd etter ett vellykket forsøk.
+
+I tillegg ville jeg satt av mer tid til repetisjon mellom de forskjellige oppgavene.
+
+Noen ganger gikk jeg videre til neste del selv om jeg fortsatt var litt usikker på den forrige.
+
+Neste gang vil jeg prøve å stoppe opp og kontrollere om jeg faktisk kan forklare og gjennomføre oppgaven selv.
+
+Jeg tror det vil gi meg et bedre faglig grunnlag.
+
+### 22.12 Sikkerhet og videre læring
+
+Prosjektet gjorde meg også mer interessert i nettverkssikkerhet.
+
+Jeg brukte Telnet som en kontrollert øvelse i Packet Tracer og lærte hvorfor denne protokollen ikke er et godt valg for moderne fjernadministrasjon.
+
+Senere ønsker jeg å lære mer om SSH, brannmurregler og tilgangskontroll mellom nettverk.
+
+Men jeg mener at det er viktig å forstå grunnleggende nettverk godt før jeg går videre til mer avansert sikkerhet.
+
+Hvis jeg ikke forstår hvordan nettverkstrafikken beveger seg, blir det også vanskeligere å forstå hvordan jeg skal beskytte den.
+
+Derfor vil jeg prioritere grunnleggende nettverksforståelse og feilsøking videre.
+
+### 22.13 Forskjellen mellom fysisk nettverk og Packet Tracer
+
+Jeg synes det var nyttig å jobbe med både ekte utstyr og et simulert nettverk.
+
+I den fysiske delen måtte jeg håndtere kabler, nettverksadaptere, Windows-innstillinger og faktiske forbindelser.
+
+I Packet Tracer kunne jeg bygge en større løsning med flere VLAN, rutere og tjenester uten å ha alt utstyret fysisk tilgjengelig.
+
+Simulation Mode gjorde det lettere å se hvordan pakker beveget seg gjennom nettverket.
+
+Samtidig forstod jeg at en simulering ikke viser alle utfordringer som kan oppstå med ekte maskinvare.
+
+Begge arbeidsmåtene var derfor lærerike.
+
+Jeg ønsker å fortsette å bruke Packet Tracer til repetisjon, men vil også gjerne få mer praktisk erfaring med fysisk nettverksutstyr.
+
+### 22.14 Min samlede egenvurdering
+
+Når jeg ser tilbake på prosjektet, er jeg fornøyd med at jeg fikk gjennomført mange praktiske oppgaver og lært mer om nettverk.
+
+Jeg fikk satt opp et fysisk nettverk, jobbet med Windows Server og bygget et større bedriftsnettverk i Packet Tracer.
+
+Jeg har brukt flere verktøy til testing og feilsøking, og jeg har fått bedre forståelse av sammenhengen mellom IP-adresser, ruting og nettverkstjenester.
+
+Men jeg vil ikke si at jeg er helt fornøyd med mitt eget faglige nivå ennå.
+
+Jeg har fortsatt behov for mye repetisjon, og jeg har brukt både notater, veiledning og kunstig intelligens for å forstå flere av temaene.
+
+Dette har hjulpet meg i arbeidet, men det viser også at jeg fortsatt trenger å utvikle min egen forståelse og selvstendighet.
+
+Jeg ønsker ikke å være avhengig av å få forklart den samme oppgaven hver gang jeg skal utføre den.
+
+Jeg vil kunne planlegge et nettverk, konfigurere det, finne feil og forklare resultatene med større sikkerhet.
+
+Jeg mener derfor at prosjektet har vært et viktig steg i riktig retning, men ikke et punkt der jeg kan si at jeg behersker alt.
+
+Jeg er stolt av fremgangen jeg har hatt, men samtidig ikke helt tilfreds med hvor mye jeg kan utføre uten hjelp.
+
+Det gir meg motivasjon til å fortsette å øve.
+
+For meg handler det ikke bare om å få en god karakter. Jeg ønsker å utvikle kunnskap som jeg faktisk kan bruke videre i utdanningen og senere i arbeidslivet.
+
+Det viktigste jeg tar med meg fra prosjektet, er at jeg har lært mye, men også blitt mer bevisst på hva jeg fortsatt må jobbe med.
+
+Jeg vil fortsette å repetere, teste og utfordre meg selv til jeg blir tryggere og mer selvstendig innen IT og nettverk.
