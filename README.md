@@ -61,50 +61,86 @@ Hvis jeg mangler dokumentasjon på et krav, skal jeg skrive det tydelig i stedet
 
 ### 3.1 Utstyret jeg brukte
 
-I den første delen av prosjektet satte jeg opp et fysisk nettverk på skolen. Jeg brukte en ruter, en switch, en server og en bærbar PC.
+Jeg startet prosjektet med å bygge et fysisk nettverk på skolen. Jeg brukte en ruter, en switch, en Windows Server-PC og min egen ASUS-laptop.
 
-| Navn | Utstyr | Oppgave i nettverket |
+| Navn | Utstyr | Funksjon |
 |---|---|---|
-| R1 | TP-Link Archer C50 | Kobler nettverket videre og deler ut IP-adresser med DHCP |
-| SW1 | Switch | Kobler sammen enhetene i det lokale nettverket |
-| SERVER01 | Stasjonær PC med Windows Server | Brukes som server med fast IP-adresse og fildeling |
-| CLIENT01 | ASUS-laptop med Windows | Brukes som klient for å teste nettverket |
+| R1 | TP-Link Archer C50 V4 | Ruter og DHCP-server |
+| SW1 | TP-Link TL-SG105 | Switch med fem porter |
+| SERVER01 | Stasjonær PC med Windows Server | Server for blant annet fildeling |
+| CLIENT01 | ASUS-laptop med USB-Ethernet-adapter | Klient for konfigurering og testing |
 
-Jeg brukte Ethernet-kabler for å koble enhetene sammen.
+SERVER01 fikk senere installert Windows Server 2025 Standard på nytt.
 
-### 3.2 Hvordan jeg koblet nettverket
+### 3.2 Hvordan jeg koblet utstyret
 
-Jeg startet med å koble SERVER01 og CLIENT01 til switchen. Deretter koblet jeg en LAN-port på ruteren til switchen.
+Den 20.10.2026 dokumenterte jeg hvordan utstyret var koblet sammen.
 
-Jeg brukte følgende porter:
+Jeg koblet både SERVER01 og CLIENT01 til SW1 med Ethernet-kabler. Deretter koblet jeg ruteren til switchen.
 
-| Tilkobling | Port på SW1 | Kabel |
-|---|---|---|
-| SW1 til R1 | Port 1 | Sølvfarget |
-| SW1 til SERVER01 | Port 2 | Gul |
-| SW1 til CLIENT01 | Port 3 | Gul |
+Dette var portene og kablene jeg brukte:
 
-Jeg koblet også den grønne kabelen fra skolens nettverksuttak til WAN-porten på ruteren.
+| Fra | Port | Til | Port | Kabel |
+|---|---|---|---|---|
+| Vegguttak | Ethernet | R1 | Internet/WAN | Grønn |
+| R1 | LAN 3 | SW1 | Port 1 | Grå/sølv |
+| SW1 | Port 2 | SERVER01 | Ethernet | Gul |
+| SW1 | Port 3 | CLIENT01 | USB-Ethernet | Gul |
 
-Denne oppkoblingen gjorde at SERVER01 og CLIENT01 kunne være i samme lokale nettverk og kommunisere gjennom switchen.
+Læreren hadde godkjent at jeg brukte den grønne kabelen fra skolens nettverksuttak til WAN-porten på R1.
 
-### 3.3 Kontroll av fysisk tilkobling
+Jeg brukte ikke WAN-porten for å koble til switchen. Den lokale forbindelsen mellom R1 og SW1 gikk gjennom LAN 3.
 
-Etter at kablene var koblet til, kontrollerte jeg at utstyret hadde strøm og at nettverksportene viste linklys.
+### 3.3 Nettverkstopologi
 
-Dette gjorde jeg før jeg begynte med IP-adressene, fordi jeg ville være sikker på at den fysiske tilkoblingen var på plass.
+Nettverket var koblet slik:
 
-Jeg tok også bilder av utstyret og kablene for å vise hvordan nettverket var koblet sammen.
+```mermaid
+flowchart TD
+    A["Vegguttak på skolen"] -->|"Grønn kabel – WAN"| B["R1 – TP-Link Archer C50 V4"]
+    B -->|"LAN 3 – grå kabel"| C["SW1 – TP-Link TL-SG105, port 1"]
+    C -->|"Port 2 – gul kabel"| D["SERVER01 – Windows Server"]
+    C -->|"Port 3 – gul kabel"| E["CLIENT01 – ASUS-laptop"]
+```
 
-### 3.4 Hvorfor jeg koblet nettverket slik
+Diagrammet viser den fysiske oppkoblingen. Både klienten og serveren var koblet til samme switch.
 
-Jeg brukte switchen fordi både SERVER01 og CLIENT01 skulle være koblet til det samme lokale nettverket.
+### 3.4 Kontroll av fysisk tilkobling
 
-Ruteren fungerte som gateway og DHCP-server for klienten. SERVER01 skulle ha fast IP-adresse, slik at CLIENT01 kunne finne serveren på samme adresse hver gang.
+Etter at kablene var koblet til, kontrollerte jeg utstyret og statuslysene.
 
-TP-Link-ruteren ble konfigurert gjennom nettleseren. Derfor brukte jeg ikke Cisco IOS-kommandoer på den fysiske ruteren.
+Jeg observerte grønne lys ved de tilkoblede switchportene. Dette tydet på at det var fysisk link mellom enhetene.
 
-Etter at jeg hadde kontrollert tilkoblingene, gikk jeg videre til å konfigurere IP-adressene og teste kommunikasjonen mellom enhetene.
+Jeg tok bilder av ruteren, switchen, kablene og arbeidsplassen for å dokumentere oppkoblingen.
+
+Jeg lærte at linklys ikke alene betyr at nettverket fungerer riktig. Lysene viser fysisk forbindelse, men IP-adresser og kommunikasjon må testes separat.
+
+Derfor gjennomførte jeg senere ping-tester mot R1 og SERVER01.
+
+### 3.5 Hvorfor jeg valgte denne oppkoblingen
+
+Jeg koblet både klienten og serveren til switchen fordi de skulle kommunisere i samme lokale nettverk.
+
+R1 hadde LAN-adressen `192.168.50.1` og skulle fungere som standard gateway og DHCP-server for CLIENT01.
+
+SERVER01 skulle ha fast IP-adresse, slik at klienten kunne nå serveren på en kjent adresse.
+
+Jeg brukte USB-Ethernet-adapteren på CLIENT01 for å koble laptopen til det kablede labnettet.
+
+Ved å skrive ned hvilke porter og kabler jeg hadde brukt, ble det enklere å kontrollere oppkoblingen og finne feil senere.
+
+### 3.6 Dokumentasjon
+
+Jeg har tatt bilder av den fysiske oppkoblingen, blant annet:
+
+- Nettverkstopologien
+- Ruterens kabeltilkoblinger
+- Switchportene og linklysene
+- Ruteren og statuslysene
+- Arbeidsplassen med SERVER01 og CLIENT01
+- Oversikt over nettverksutstyret
+
+Bildene viser hvordan utstyret var koblet opp. Selve IP-kommunikasjonen dokumenterer jeg gjennom de separate nettverkstestene.
 
 ## 4. IP-adresseplan og konfigurering
 
