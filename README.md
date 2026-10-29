@@ -2179,3 +2179,98 @@ Det viktigste jeg tar med meg, er at feilsøking handler om å undersøke sympto
 
 Jeg vil også skille mellom det jeg har bevist gjennom tester, og det jeg bare har en mulig forklaring på.
 
+
+## 21. Akseptansetest (QA)
+
+### 21.1 Hvorfor jeg gjennomførte en akseptansetest
+
+Da jeg startet prosjektet, laget jeg en kravspesifikasjon med åtte krav, K1–K8.
+
+Etter at jeg hadde jobbet med både det fysiske nettverket og FjordTek AS i Packet Tracer, gikk jeg gjennom kravene på nytt.
+
+Jeg ville kontrollere hva som faktisk hadde fungert, hvilke tester jeg hadde gjennomført, og om jeg hadde nok dokumentasjon.
+
+Jeg brukte arbeidsloggen, testresultatene og de opprinnelige skjermbildene fra prosjektet.
+
+Jeg skiller mellom tester som fungerte, og tester der jeg mangler fullstendig dokumentasjon.
+
+### 21.2 Akseptansetest – K1 til K8
+
+| Krav | Test | Forventet resultat | Faktisk resultat | Status |
+|---|---|---|---|---|
+| K1 – Kommunikasjon mellom CLIENT01 og SERVER01 | `ping 192.168.50.10` fra CLIENT01 | Serveren svarer på ping | Jeg fikk 4 av 4 svar, med 0 % pakketap | Bestått ifølge arbeidsloggen |
+| K2 – Fast IP på SERVER01 | Kontroll av IPv4-innstillinger på den fysiske serveren | SERVER01 bruker `192.168.50.10/24` som statisk adresse | Jeg satte opp adressen, men mangler en fullstendig `ipconfig /all` etter reinstallasjonen | Ikke fullstendig dokumentert |
+| K3 – DHCP på CLIENT01 | Kontroll med `ipconfig /all` | Klienten får IP-adresse, gateway og DHCP-server fra riktig nettverk | CLIENT01 fikk `192.168.50.100/24`, gateway og DHCP-server `192.168.50.1` | Bestått ifølge arbeidsloggen |
+| K4 – Tjeneste på SERVER01 | Åpne `Felles`, kontrollere SMB og opprette testfil | Klienten får tilgang til fildelingen og kan bruke den | SMB-forbindelsen fungerte. Jeg oppga at testfilen ble opprettet, men mangler eget bilde av filtesten | Delvis dokumentert |
+| K5 – Routing mellom LAN i Packet Tracer | `ping`, `tracert` og `show ip route` | Klienter i forskjellige nettverk kan kommunisere | Tracert fra ADMIN til SALG og fra SALG til SERVER01 fullførte fire hopp. Rutetabellene viste riktige ruter | Bestått for de testede forbindelsene |
+| K6 – DHCP, DNS og HTTP i Packet Tracer | Kontrollere klientadresser og teste intranettsiden med IP og DNS-navn | Klientene får riktige innstillinger og kan bruke DNS og HTTP | DHCP ble kontrollert på flere klienter. Jeg registrerte at intranettet fungerte med IP og DNS-navn. DNS- og HTTP-trafikk ble observert i Simulation Mode | Bestått for testede funksjoner, med dokumentasjonsbegrensninger |
+| K7 – Testing og dokumentasjon | Kontrollere README, tester, bilder, `.pkt` og GitHub Projects | Arbeidet er dokumentert og kan gjennomgås av læreren | Testresultatene er skrevet inn. Jeg skal fortsatt flytte de originale bildene og Packet Tracer-filen til det nye repositoryet og fullføre GitHub Projects | Pågår |
+| K8 – DHCP-fornyelse på CLIENT01 | `ipconfig /release`, `ipconfig /renew`, `ipconfig /all` og ping | Klienten får riktige innstillinger og kan fortsatt nå SERVER01 | DHCP-fornyelse og senere vellykket ping er registrert i arbeidsloggen. Hele testforløpet er ikke dokumentert samlet | Bestått ifølge arbeidsloggen, med begrenset direktebevis |
+
+### 21.3 Krav som ikke er fullstendig dokumentert
+
+Jeg fikk gjennomført mange av testene, men jeg mangler noen direkte skjermbilder fra det fysiske nettverket.
+
+**K2 – SERVER01**
+
+Jeg satte ifølge arbeidsloggen opp SERVER01 med statisk IP-adresse. Etter at Windows Server ble installert på nytt, fikk jeg ikke tatt vare på et fullstendig skjermbilde av den endelige IP-konfigurasjonen.
+
+Jeg kan derfor ikke dokumentere den siste statiske konfigurasjonen fullt ut.
+
+**K4 – SMB-fildeling**
+
+Jeg fikk tilgang til den delte mappen `Felles`, og `Get-SmbConnection` viste en aktiv SMB-forbindelse.
+
+Wireshark viste også SMB-trafikk, og Nmap viste at TCP-port 445 var åpen.
+
+Jeg mangler likevel et eget bilde som bekrefter testfilen og de endelige Share- og NTFS-tillatelsene.
+
+**K8 – DHCP-fornyelse**
+
+Jeg brukte DHCP-fornyelse på klienten og dokumenterte riktige nettverksinnstillinger. Jeg fikk også svar fra SERVER01 i en senere ping-test.
+
+Jeg har ikke et sammenhengende skjermbilde som viser hele fornyelsen og den påfølgende forbindelsestesten.
+
+Jeg har ikke tilgang til skoleutstyret for å hente nye direktebevis. Derfor bruker jeg de opprinnelige testresultatene og er tydelig på hva som mangler.
+
+### 21.4 Begrensninger i Packet Tracer-testene
+
+I Packet Tracer fungerte de fleste forbindelsene jeg testet.
+
+Jeg hadde likevel noen resultater som jeg måtte undersøke nærmere.
+
+Fra PC-SALG til SERVER01 fikk jeg først 75 % pakketap. Da jeg gjentok testen, fikk jeg 0 % pakketap.
+
+Jeg vet ikke sikkert hvorfor den første testen mistet tre pakker. Derfor bruker jeg ikke den andre testen som bevis på at hele nettverket var stabilt over tid.
+
+Jeg testet også Telnet på R2-SALG. Innloggingen fungerte, og jeg kunne bruke `show ip interface brief`.
+
+Etterpå endret jeg VTY-innstillingene for å deaktivere Telnet og lagret konfigurasjonen. Jeg gjennomførte ikke en egen test av at en ny Telnet-tilkobling ble avvist.
+
+For PC-SALG har jeg dokumentert riktig IP-adresse og gateway, men det opprinnelige bildet viser ikke DHCP-serveren. Derfor kan jeg ikke bruke dette bildet alene som bevis på DHCP-tildelingen.
+
+### 21.5 Status på dokumentasjonen
+
+I det tidligere repositoryet hadde jeg samlet README, Packet Tracer-filen og bildene fra prosjektet.
+
+I dette nye repositoryet skriver jeg dokumentasjonen på nytt med en tydeligere struktur og mer presise forklaringer.
+
+Jeg skal fortsatt legge inn de originale bildene, Packet Tracer-filen og lenken til GitHub Projects.
+
+Jeg må også kontrollere at læreren har tilgang til repositoryet og prosjektbrettet før innlevering.
+
+Derfor markerer jeg ikke hele dokumentasjonen eller den samlede akseptansetesten som ferdig ennå.
+
+### 21.6 Min vurdering av kravene
+
+Jeg mener at testresultatene viser at jeg fikk den grunnleggende kommunikasjonen til å fungere i det fysiske nettverket.
+
+I Packet Tracer fikk jeg bygget et større nettverk med flere LAN, VLAN, ruting, DHCP, DNS og HTTP.
+
+Jeg har også gjennomført feilsøking og brukt forskjellige verktøy for å kontrollere resultatene.
+
+Samtidig har jeg lært at det ikke er nok å få noe til å fungere. Jeg må også kunne dokumentere hvordan jeg testet det, og hva resultatene faktisk viser.
+
+Jeg vurderer derfor ikke alle kravene som like godt dokumentert.
+
+Akseptansetesten blir endelig ferdig når jeg har lagt inn de opprinnelige bevisene i det nye repositoryet og kontrollert leveransen.
