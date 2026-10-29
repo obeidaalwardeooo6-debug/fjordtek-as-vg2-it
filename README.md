@@ -143,7 +143,7 @@ Jeg har tatt bilder av den fysiske oppkoblingen, blant annet:
 Bildene viser hvordan utstyret var koblet opp. Selve IP-kommunikasjonen dokumenterer jeg gjennom de separate nettverkstestene.
 
 
-### 3.1 Bilder av det fysiske nettverket
+### 3.7 Bilder av det fysiske nettverket
 
 Jeg dokumenterte oppkoblingen av det fysiske nettverket med bilder. Bildene viser utstyret jeg brukte, hvordan enhetene var koblet sammen, og hvordan arbeidsplassen var satt opp.
 
@@ -628,7 +628,7 @@ Jeg lærte å bruke visningsfiltre for å finne relevante pakker og å undersøk
 
 Jeg lærte også at jeg må være forsiktig når jeg tolker resultater. SMB-trafikk viser at det foregår kommunikasjon, men beviser ikke alene at en bestemt fil ble lagret, eller hvilke rettigheter brukeren har.
 
-Jeg har dokumentert ICMP- og SMB-trafikken med skjermbilder fra den fysiske laben. Bildene skal legges til i den nye dokumentasjonen senere.
+Jeg har dokumentert ICMP- og SMB-trafikken med skjermbilder fra den fysiske laben. Bildene er nå lagt inn i dette repositoryet og vist nedenfor.
 
 
 ### Skjermbilder fra Wireshark
@@ -2604,7 +2604,7 @@ Jeg skiller mellom tester som fungerte, og tester der jeg mangler fullstendig do
 | K4 – Tjeneste på SERVER01 | Åpne `Felles`, kontrollere SMB og opprette testfil | Klienten får tilgang til fildelingen og kan bruke den | SMB-forbindelsen fungerte. Jeg oppga at testfilen ble opprettet, men mangler eget bilde av filtesten | Delvis dokumentert |
 | K5 – Routing mellom LAN i Packet Tracer | `ping`, `tracert` og `show ip route` | Klienter i forskjellige nettverk kan kommunisere | Tracert fra ADMIN til SALG og fra SALG til SERVER01 fullførte fire hopp. Rutetabellene viste riktige ruter | Bestått for de testede forbindelsene |
 | K6 – DHCP, DNS og HTTP i Packet Tracer | Kontrollere klientadresser og teste intranettsiden med IP og DNS-navn | Klientene får riktige innstillinger og kan bruke DNS og HTTP | DHCP ble kontrollert på flere klienter. Jeg registrerte at intranettet fungerte med IP og DNS-navn. DNS- og HTTP-trafikk ble observert i Simulation Mode | Bestått for testede funksjoner, med dokumentasjonsbegrensninger |
-| K7 – Testing og dokumentasjon | Kontrollere README, tester, bilder, `.pkt` og GitHub Projects | Arbeidet er dokumentert og kan gjennomgås av læreren | Testresultatene er skrevet inn. Jeg skal fortsatt flytte de originale bildene og Packet Tracer-filen til det nye repositoryet og fullføre GitHub Projects | Pågår |
+| K7 – Testing og dokumentasjon | Kontrollere README, tester, bilder, `.pkt` og GitHub Projects | Arbeidet er dokumentert og kan gjennomgås av læreren | README, originalbilder og Packet Tracer-filen ligger i dette repositoryet. Gjennomgang av QA, prosjektbrett og lærerens tilgang gjenstår | Pågår |
 | K8 – DHCP-fornyelse på CLIENT01 | `ipconfig /release`, `ipconfig /renew`, `ipconfig /all` og ping | Klienten får riktige innstillinger og kan fortsatt nå SERVER01 | DHCP-fornyelse og senere vellykket ping er registrert i arbeidsloggen. Hele testforløpet er ikke dokumentert samlet | Bestått ifølge arbeidsloggen, med begrenset direktebevis |
 
 
@@ -2680,7 +2680,7 @@ I det tidligere repositoryet hadde jeg samlet README, Packet Tracer-filen og bil
 
 I dette nye repositoryet skriver jeg dokumentasjonen på nytt med en tydeligere struktur og mer presise forklaringer.
 
-Jeg skal fortsatt legge inn de originale bildene, Packet Tracer-filen og lenken til GitHub Projects.
+De 41 originalbildene og Packet Tracer-filen ligger nå i dette repositoryet. Jeg har lagt inn bildelenker i README. Jeg må fortsatt legge inn en direkte lenke til det nye GitHub Projects-brettet.
 
 Jeg må også kontrollere at læreren har tilgang til repositoryet og prosjektbrettet før innlevering.
 
@@ -2698,7 +2698,7 @@ Samtidig har jeg lært at det ikke er nok å få noe til å fungere. Jeg må ogs
 
 Jeg vurderer derfor ikke alle kravene som like godt dokumentert.
 
-Akseptansetesten blir endelig ferdig når jeg har lagt inn de opprinnelige bevisene i det nye repositoryet og kontrollert leveransen.
+Akseptansetesten blir endelig ferdig når jeg har kontrollert bevisene, oppdatert vurderingene for K1–K8 og gjennomgått leveransen.
 
 ## 22. Oppsummering og egenvurdering
 
@@ -3031,7 +3031,7 @@ Etter at jeg hadde jobbet med prosjektet en stund, ønsket jeg å gjøre dokumen
 
 Det opprinnelige README-dokumentet inneholdt mye informasjon, men noen temaer ble gjentatt, og enkelte resultater var vanskeligere å finne.
 
-Derfor begynte jeg å skrive dokumentasjonen på nytt i et eget repository.
+Derfor har jeg skrevet dokumentasjonen på nytt i et eget repository.
 
 Jeg bruker de samme nettverksoppsettene, testresultatene og bildene fra det opprinnelige prosjektet.
 
@@ -3043,9 +3043,11 @@ Jeg har også prøvd å skille tydeligere mellom resultater som har direkte skje
 
 ### 23.4 GitHub Projects og Kanban
 
-Jeg skal bruke GitHub Projects med Board-visning i det nye repositoryet.
+Jeg har opprettet et nytt GitHub Projects-brett med Board-visning og knyttet det til dette repositoryet.
 
-Brettet skal ha tre kolonner:
+Brettet har tre kolonner:
+
+**Lenke til GitHub Projects:** Må legges inn etter at den endelige delingslenken er kontrollert.
 
 | Kolonne | Hva den betyr |
 |---|---|
@@ -3055,7 +3057,7 @@ Brettet skal ha tre kolonner:
 
 Jeg vil bruke konkrete oppgaver, slik at jeg lettere kan følge med på hva som mangler.
 
-I den siste dokumentasjonsfasen gjelder dette blant annet kontroll av README, overføring av bilder, opplasting av Packet Tracer-filen og gjennomgang av akseptansetesten.
+De opprinnelige bildene og Packet Tracer-filen er allerede overført. I den siste fasen gjelder oppgavene særlig kontroll av README, bildelenker, akseptansetest og lærerens tilgang.
 
 Jeg vil ikke markere en oppgave som ferdig før jeg faktisk har gjennomført den.
 
@@ -3096,9 +3098,9 @@ Jeg har også den ferdige Packet Tracer-filen:
 
 `FjordTek-AS-Ferdig.pkt`
 
-Disse filene skal overføres til det nye repositoryet.
+Disse filene er overført til dette nye repositoryet.
 
-Jeg ønsker å organisere dem slik:
+Filene er organisert slik:
 
 ```text
 fjordtek-as-vg2-it/
@@ -3111,9 +3113,9 @@ fjordtek-as-vg2-it/
     └── FjordTek-AS-Ferdig.pkt
 ```
 
-Når bildene er lastet opp, skal jeg legge inn lenker i README der de passer til testene.
+Jeg har lagt inn 40 av de 41 bildene i README. Bildet av TCP three-way handshake er en teorifigur som ikke er brukt som direkte testbevis.
 
-Jeg må også kontrollere at alle filnavn og lenker stemmer.
+Jeg har kontrollert at bildelenkene viser til filer i prosjektmappene. Før innlevering må jeg også kontrollere visningen på GitHub.
 
 ### 23.7 Hva jeg fortsatt må gjøre
 
@@ -3122,11 +3124,10 @@ Før jeg kan levere prosjektet, må jeg fullføre den nye GitHub-leveransen.
 Det som gjenstår, er blant annet:
 
 - Kontrollere README og rette eventuelle feil.
-- Overføre de opprinnelige bildene.
-- Laste opp den ferdige Packet Tracer-filen.
-- Opprette eller koble riktig GitHub Project til det nye repositoryet.
-- Registrere og oppdatere oppgavene i Kanban-brettet.
-- Kontrollere at dokumentasjonen og filene kan åpnes.
+- Kontrollere at bildene vises riktig i GitHub og at Packet Tracer-filen kan åpnes i programmet.
+- Legge inn en direkte lenke til GitHub Projects-brettet i README.
+- Kontrollere og oppdatere status på oppgavene i Kanban-brettet.
+- Gå gjennom akseptansetesten K1–K8 og rette eventuelle feil.
 - Kontrollere at læreren har tilgang til repositoryet og prosjektbrettet.
 - Gjennomføre den siste leveransekontrollen.
 
