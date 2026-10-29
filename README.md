@@ -3065,6 +3065,18 @@ Siden jeg nå skriver dokumentasjonen på nytt, skal jeg også skille mellom det
 
 Det er viktig for meg at prosjektbrettet viser den faktiske statusen, ikke bare at alle oppgavene ser ferdige ut.
 
+
+### Lenke til GitHub Projects
+
+Jeg har opprettet et GitHub Projects-brett for FjordTek AS og knyttet det til dette repositoryet.
+
+[Åpne GitHub Projects – Kanban](https://github.com/users/obeidaalwardeooo6-debug/projects/2)
+
+Jeg bruker kolonnene Todo, In progress og Done for å holde oversikt over oppgavene.
+
+De praktiske nettverksoppgavene fra det opprinnelige prosjektet er registrert som fullført, mens kvalitetskontroll og innlevering følges opp separat.
+
+
 ### 23.5 Commits og dokumentasjon av endringer
 
 Jeg har brukt README til å forklare hva jeg gjorde i prosjektet, hvilke innstillinger jeg valgte, og hvilke tester jeg gjennomførte.
