@@ -1404,3 +1404,151 @@ Jeg lærte at både riktig kabling, IP-adresser og rutetabeller må fungere samm
 Da forbindelsen mellom SW-CORE-HQ og R1-HQ ikke fungerte, hjalp det å undersøke den fysiske oppkoblingen før jeg begynte å endre rutene.
 
 Tracert-testene viste at de valgte nettverksveiene fungerte. De var likevel ikke en fullstendig stabilitetstest av hele bedriftsnettverket.
+
+
+## 16. DHCP i Cisco Packet Tracer
+
+### 16.1 Hvorfor jeg brukte DHCP
+
+I FjordTek AS brukte jeg DHCP for at klientene skulle få nettverksinnstillinger automatisk.
+
+Jeg ville slippe å skrive inn IP-adresse, subnettmaske, gateway og DNS manuelt på hver klient.
+
+Siden bedriften hadde flere nettverk, måtte klientene også få adresser som passet til sin egen avdeling.
+
+### 16.2 DHCP på PC-ADMIN
+
+Jeg brukte `ipconfig /all` på PC-ADMIN for å kontrollere nettverksinnstillingene.
+
+Resultatet viste:
+
+| Innstilling | Verdi |
+|---|---|
+| IPv4-adresse | 192.168.10.100 |
+| Subnettmaske | 255.255.255.0 |
+| Default gateway | 192.168.10.1 |
+| DHCP-server | 192.168.10.1 |
+| DNS-server | 192.168.30.10 |
+
+Dette viste at PC-ADMIN hadde fått nettverksinnstillinger som passet til VLAN 10.
+
+DHCP-serveradressen var den samme som gatewayen på VLAN 10.
+
+Jeg testet også forbindelsen til gatewayen:
+
+```text
+ping 192.168.10.1
+```
+
+Jeg fikk fire svar uten pakketap.
+
+Dermed hadde jeg kontrollert både IP-innstillingene og at klienten kunne nå sin egen gateway.
+
+### 16.3 DHCP på PC-ADMIN2
+
+Jeg la til PC-ADMIN2 som en ekstra klient i Administrasjon.
+
+På denne PC-en valgte jeg DHCP under Desktop → IP Configuration i Packet Tracer.
+
+Jeg fikk meldingen:
+
+`DHCP request successful.`
+
+Klienten fikk disse innstillingene:
+
+| Innstilling | Verdi |
+|---|---|
+| IPv4-adresse | 192.168.10.101 |
+| Subnettmaske | 255.255.255.0 |
+| Default gateway | 192.168.10.1 |
+| DNS-server | 192.168.30.10 |
+
+PC-ADMIN og PC-ADMIN2 hadde forskjellige IP-adresser, men lå i samme subnett.
+
+Jeg brukte senere disse to klientene til å undersøke ARP og ICMP i Simulation Mode.
+
+### 16.4 DHCP på PC-SUPPORT
+
+Etterpå kontrollerte jeg nettverksinnstillingene på PC-SUPPORT.
+
+Jeg kjørte:
+
+```text
+ipconfig /all
+```
+
+Resultatet viste:
+
+| Innstilling | Verdi |
+|---|---|
+| IPv4-adresse | 192.168.20.100 |
+| Subnettmaske | 255.255.255.0 |
+| Default gateway | 192.168.20.1 |
+| DHCP-server | 192.168.20.1 |
+| DNS-server | 192.168.30.10 |
+
+PC-SUPPORT hadde fått en adresse fra riktig nettverk, `192.168.20.0/24`.
+
+Jeg testet også forbindelsen fra PC-SUPPORT til SERVER01 på `192.168.30.10`. Jeg fikk fire ping-svar uten pakketap.
+
+Dette viste at klienten kunne kommunisere med serveren i et annet subnett under testen.
+
+### 16.5 Nettverksinnstillinger på PC-SALG
+
+På PC-SALG kontrollerte jeg adressen med:
+
+```text
+ipconfig
+```
+
+Resultatet viste:
+
+- IPv4-adresse: `192.168.40.100`
+- Subnettmaske: `255.255.255.0`
+- Default gateway: `192.168.40.1`
+
+Dette stemte med adresseplanen for salgsavdelingen.
+
+Jeg hadde oppgitt i arbeidsloggen at DHCP var brukt på Salg. Skjermbildet fra `ipconfig` viser likevel ikke DHCP-serveren eller om adressen ble tildelt automatisk.
+
+Derfor bruker jeg bildet som dokumentasjon på IP-adresse og gateway, men ikke som et fullstendig bevis på DHCP-tildelingen.
+
+### 16.6 Fast IP-adresse på SERVER01
+
+SERVER01 skulle ha en fast IP-adresse, fordi klientene skulle bruke serveren til DNS og HTTP.
+
+I Packet Tracer kontrollerte jeg følgende innstillinger:
+
+| Innstilling | Verdi |
+|---|---|
+| IP Configuration | Static |
+| IPv4-adresse | 192.168.30.10 |
+| Subnettmaske | 255.255.255.0 |
+| Default gateway | 192.168.30.1 |
+| DNS-server | 192.168.30.10 |
+
+SERVER01 brukte altså ikke DHCP.
+
+Jeg valgte fast IP fordi DNS-innstillingene på klientene pekte til `192.168.30.10`. Hvis serveradressen endret seg, kunne klientene få problemer med å finne tjenestene.
+
+### 16.7 Kontroll av DHCP-resultatene
+
+Jeg hadde dokumentasjon på at PC-ADMIN, PC-ADMIN2 og PC-SUPPORT fikk riktige nettverksinnstillinger.
+
+For PC-SALG dokumenterte jeg riktig IP-adresse og gateway, men ikke DHCP-serverfeltet.
+
+Jeg har ikke tatt med de nøyaktige DHCP-poolene, ekskluderte adressene eller alle konfigurasjonskommandoene i dette kapitlet, fordi disse opplysningene ikke er dokumentert fullstendig i de opprinnelige skjermbildene.
+
+Jeg vil heller vise innstillingene jeg faktisk kunne kontrollere, enn å skrive inn kommandoer jeg ikke kan bekrefte at jeg brukte.
+
+### 16.8 Hva jeg lærte
+
+Jeg lærte at DHCP gjør det enklere å administrere IP-adresser når det finnes mange klienter.
+
+Jeg forstod også at forskjellige VLAN trenger nettverksinnstillinger som passer til hvert subnett.
+
+DHCP gir klienten blant annet IP-adresse, gateway og DNS-server, men en riktig DHCP-adresse betyr ikke automatisk at alle nettverkstjenester fungerer.
+
+Derfor måtte jeg også teste kommunikasjonen med ping og kontrollere DNS og HTTP separat.
+
+Jeg lærte forskjellen mellom en klient som får adresse automatisk og en server som bruker fast IP-adresse.
