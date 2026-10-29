@@ -249,3 +249,60 @@ Dette ble viktig senere da jeg jobbet med SMB og Windows-brannmuren.
 Jeg har testresultater fra arbeidet med det fysiske nettverket. Windows Server ble senere installert på nytt, og jeg har ikke en fullstendig sluttkontroll av serverens nettverksinnstillinger etter reinstallasjonen.
 
 Derfor skiller jeg mellom testene jeg faktisk gjennomførte, og det jeg ikke fikk kontrollert på nytt.
+
+
+## 6. SERVER01 og SMB-fildeling
+
+### 6.1 Oppsett av fildeling
+
+I denne delen jobbet jeg med å bruke SERVER01 som en filserver. Målet var at CLIENT01 skulle kunne åpne en delt mappe på serveren over nettverket.
+
+Jeg brukte Windows Server som en vanlig server uten Active Directory.
+
+Jeg opprettet en delt mappe med navnet `Felles` og jobbet med brukertilgang og delingsinnstillinger.
+
+Fra CLIENT01 brukte jeg denne adressen i Filutforsker:
+
+`\\192.168.50.10\Felles`
+
+Dette er en UNC-adresse. Den viser hvilken server jeg vil koble til, og hvilken delt mappe jeg vil åpne.
+
+### 6.2 Testing av tilkoblingen
+
+Jeg testet om CLIENT01 kunne få tilgang til den delte mappen på SERVER01.
+
+Jeg brukte også PowerShell-kommandoen:
+
+`Get-SmbConnection`
+
+Kommandoen viste en aktiv SMB-forbindelse fra klienten. Det var nyttig fordi jeg kunne kontrollere at klienten faktisk hadde opprettet en forbindelse til serverens fildeling.
+
+SMB bruker vanligvis TCP-port 445. Jeg undersøkte denne porten senere med Nmap.
+
+### 6.3 Problemer med Windows Firewall
+
+I starten hadde jeg problemer med å få tilgang til fildelingen.
+
+Selv om nettverksforbindelsen fungerte, fikk ikke klienten brukt SMB-tjenesten slik jeg forventet.
+
+Jeg undersøkte derfor Windows Firewall på SERVER01 og kontrollerte innstillingene for fil- og skriverdeling. Etter at jeg endret brannmurinnstillingene, fikk jeg SMB-forbindelsen til å fungere.
+
+Jeg lærte at en vellykket ping ikke er nok til å vise at en nettverkstjeneste er tilgjengelig. Brannmuren kan tillate ICMP, men samtidig blokkere trafikk til en bestemt TCP-port.
+
+### 6.4 Testfil og dokumentasjon
+
+Jeg jobbet også med å opprette en testfil gjennom den delte mappen.
+
+Jeg har dokumentasjon på SMB-forbindelsen, men jeg mangler et endelig skjermbilde som viser at testfilen ble opprettet fra CLIENT01 og kontrollert på SERVER01.
+
+Jeg har heller ikke fullstendig dokumentasjon på de siste Share- og NTFS-tillatelsene etter at Windows Server ble installert på nytt.
+
+Derfor kan jeg vise at SMB-forbindelsen fungerte under arbeidet, men jeg kan ikke dokumentere hele den endelige filtesten.
+
+### 6.5 Hva jeg lærte
+
+Gjennom denne oppgaven fikk jeg bedre forståelse av hvordan en klient bruker en tjeneste på en server.
+
+Jeg lærte forskjellen mellom å ha kontakt med en server på nettverket og å faktisk få tilgang til en bestemt tjeneste.
+
+Jeg fikk også erfaring med å undersøke brannmurinnstillinger når en tjeneste ikke fungerer som forventet.
