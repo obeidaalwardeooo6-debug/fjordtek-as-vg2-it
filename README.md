@@ -306,3 +306,74 @@ Gjennom denne oppgaven fikk jeg bedre forståelse av hvordan en klient bruker en
 Jeg lærte forskjellen mellom å ha kontakt med en server på nettverket og å faktisk få tilgang til en bestemt tjeneste.
 
 Jeg fikk også erfaring med å undersøke brannmurinnstillinger når en tjeneste ikke fungerer som forventet.
+
+## 7. Nmap og nettverksporter
+
+### 7.1 Hvorfor jeg brukte Nmap
+
+Etter at jeg hadde jobbet med fildeling på SERVER01, ville jeg undersøke hvilke nettverksporter klienten kunne nå på serveren.
+
+Jeg brukte Nmap på CLIENT01 for å teste tre TCP-porter som er relevante for Windows og fildeling.
+
+Jeg skannet bare min egen labserver med IP-adressen `192.168.50.10`.
+
+### 7.2 Kommandoen jeg brukte
+
+Jeg åpnet terminalen på CLIENT01 og kjørte:
+
+```bash
+nmap -sT -Pn -p 135,139,445 192.168.50.10
+```
+
+Jeg brukte disse alternativene:
+
+- `-sT`: Gjennomfører en TCP Connect-skanning.
+- `-Pn`: Hopper over vertsgjenkjenning og forsøker å skanne målet direkte.
+- `-p 135,139,445`: Velger hvilke porter som skal skannes.
+- `192.168.50.10`: IP-adressen til SERVER01.
+
+Jeg valgte disse portene fordi de er knyttet til Windows-nettverkstjenester.
+
+### 7.3 Resultat fra Nmap
+
+Dette var resultatene jeg fikk:
+
+| Port | State | Service |
+|---|---|---|
+| 135/tcp | open | msrpc |
+| 139/tcp | filtered | netbios-ssn |
+| 445/tcp | open | microsoft-ds |
+
+**Port 135 – open**
+
+Port 135 er knyttet til Microsoft RPC. Nmap viste at TCP-porten var åpen på SERVER01.
+
+**Port 139 – filtered**
+
+Port 139 brukes blant annet i eldre Windows-nettverk for NetBIOS Session Service.
+
+Nmap viste `filtered`. Det betyr at skanningen ikke kunne avgjøre om porten var åpen eller lukket, fordi trafikken eller svarene ble filtrert. En brannmur kan være en mulig årsak, men jeg undersøkte ikke årsaken nærmere i denne testen.
+
+**Port 445 – open**
+
+Port 445 brukes til SMB, blant annet for fildeling i Windows.
+
+Nmap viste at porten var åpen. Det var relevant for prosjektet fordi jeg hadde jobbet med å koble CLIENT01 til den delte mappen på SERVER01.
+
+### 7.4 Hva resultatene fortalte meg
+
+Jeg fant ut at SERVER01 hadde åpne TCP-porter på 135 og 445, mens port 139 ble rapportert som filtrert.
+
+Det viktigste resultatet for meg var port 445, siden jeg brukte SMB til fildeling.
+
+Samtidig lærte jeg at en åpen port ikke betyr at jeg automatisk har tilgang til en delt mappe. Brukeren må også ha riktige tillatelser.
+
+Nmap viste hvilke porter som svarte på skanningen, men ikke om jeg kunne lese eller skrive filer i mappen.
+
+### 7.5 Hva jeg lærte
+
+Denne testen hjalp meg å forstå forskjellen mellom en IP-adresse og en port.
+
+IP-adressen brukes for å nå riktig enhet, mens portnummeret brukes for å nå en bestemt nettverkstjeneste på enheten.
+
+Jeg lærte også at Nmap og ping undersøker forskjellige ting. Ping tester kontakt med ICMP, mens Nmap kan undersøke tilgjengeligheten til bestemte TCP-porter.
