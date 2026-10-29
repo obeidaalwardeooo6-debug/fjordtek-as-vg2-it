@@ -55,3 +55,53 @@ Når jeg har dokumentert oppsettet og testene, skal jeg sammenligne resultatene 
 I akseptansetesten (QA) skal jeg skrive hva jeg forventet, hva som faktisk skjedde, og om testen ble bestått.
 
 Hvis jeg mangler dokumentasjon på et krav, skal jeg skrive det tydelig i stedet for å markere det som fullt dokumentert.
+
+
+## 3. Fysisk nettverk – topologi og utstyr
+
+### 3.1 Utstyret jeg brukte
+
+I den første delen av prosjektet satte jeg opp et fysisk nettverk på skolen. Jeg brukte en ruter, en switch, en server og en bærbar PC.
+
+| Navn | Utstyr | Oppgave i nettverket |
+|---|---|---|
+| R1 | TP-Link Archer C50 | Kobler nettverket videre og deler ut IP-adresser med DHCP |
+| SW1 | Switch | Kobler sammen enhetene i det lokale nettverket |
+| SERVER01 | Stasjonær PC med Windows Server | Brukes som server med fast IP-adresse og fildeling |
+| CLIENT01 | ASUS-laptop med Windows | Brukes som klient for å teste nettverket |
+
+Jeg brukte Ethernet-kabler for å koble enhetene sammen.
+
+### 3.2 Hvordan jeg koblet nettverket
+
+Jeg startet med å koble SERVER01 og CLIENT01 til switchen. Deretter koblet jeg en LAN-port på ruteren til switchen.
+
+Jeg brukte følgende porter:
+
+| Tilkobling | Port på SW1 | Kabel |
+|---|---|---|
+| SW1 til R1 | Port 1 | Sølvfarget |
+| SW1 til SERVER01 | Port 2 | Gul |
+| SW1 til CLIENT01 | Port 3 | Gul |
+
+Jeg koblet også den grønne kabelen fra skolens nettverksuttak til WAN-porten på ruteren.
+
+Denne oppkoblingen gjorde at SERVER01 og CLIENT01 kunne være i samme lokale nettverk og kommunisere gjennom switchen.
+
+### 3.3 Kontroll av fysisk tilkobling
+
+Etter at kablene var koblet til, kontrollerte jeg at utstyret hadde strøm og at nettverksportene viste linklys.
+
+Dette gjorde jeg før jeg begynte med IP-adressene, fordi jeg ville være sikker på at den fysiske tilkoblingen var på plass.
+
+Jeg tok også bilder av utstyret og kablene for å vise hvordan nettverket var koblet sammen.
+
+### 3.4 Hvorfor jeg koblet nettverket slik
+
+Jeg brukte switchen fordi både SERVER01 og CLIENT01 skulle være koblet til det samme lokale nettverket.
+
+Ruteren fungerte som gateway og DHCP-server for klienten. SERVER01 skulle ha fast IP-adresse, slik at CLIENT01 kunne finne serveren på samme adresse hver gang.
+
+TP-Link-ruteren ble konfigurert gjennom nettleseren. Derfor brukte jeg ikke Cisco IOS-kommandoer på den fysiske ruteren.
+
+Etter at jeg hadde kontrollert tilkoblingene, gikk jeg videre til å konfigurere IP-adressene og teste kommunikasjonen mellom enhetene.
