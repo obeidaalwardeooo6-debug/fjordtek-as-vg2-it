@@ -523,6 +523,18 @@ Jeg lærte også forskjellen mellom `open` og `filtered`, og hvorfor det er vikt
 Jeg gjorde ingen endringer i brannmurinnstillingene som følge av denne skanningen.
 
 
+### Skjermbilde fra Nmap-testen
+
+Jeg brukte Nmap til å undersøke TCP-portene 135, 139 og 445 på SERVER01 (`192.168.50.10`).
+
+Resultatet viste at port 135 og 445 var åpne, mens port 139 var filtrert.
+
+![Nmap-portskanning av SERVER01](images/fysisk-nettverk/09-nmap-portskanning-server01.png)
+
+Dette skjermbildet dokumenterer portstatusen under testen. Det viser ikke alene at brukeren hadde tilgang til alle filer og mapper på serveren.
+
+
+
 ## 8. Wireshark – analyse av nettverkstrafikk
 
 ### 8.1 Hvorfor jeg brukte Wireshark
@@ -619,6 +631,27 @@ Jeg lærte også at jeg må være forsiktig når jeg tolker resultater. SMB-traf
 Jeg har dokumentert ICMP- og SMB-trafikken med skjermbilder fra den fysiske laben. Bildene skal legges til i den nye dokumentasjonen senere.
 
 
+### Skjermbilder fra Wireshark
+
+**ICMP-trafikk mellom CLIENT01 og SERVER01**
+
+Jeg brukte filteret `icmp` i Wireshark og observerte fire Echo Requests og fire Echo Replies mellom klienten og serveren.
+
+![ICMP-trafikk i Wireshark](images/fysisk-nettverk/10-wireshark-icmp-client01-server01.png)
+
+**SMB-trafikk på TCP-port 445**
+
+Jeg undersøkte også SMB-trafikk med filteret:
+
+`ip.addr == 192.168.50.10 && tcp.port == 445`
+
+I opptaket kunne jeg blant annet se SMB2 Create Request, Create Response og Close-meldinger.
+
+![SMB-trafikk i Wireshark](images/fysisk-nettverk/11-wireshark-smb-tcp445.png)
+
+Dette dokumenterer at SMB-kommunikasjon fant sted. Opptaket er ikke alene et bevis på at den bestemte testfilen ble opprettet.
+
+
 
 ## 9. Tracert og nettverksvei
 
@@ -673,6 +706,20 @@ Dette gjorde det lettere for meg å forstå forskjellen mellom kommunikasjon i s
 Jeg forstod også bedre hvorfor det er viktig å vite om to enheter ligger i samme subnett før jeg begynner med feilsøking.
 
 `ping` hjalp meg å teste om enheten svarte, mens `tracert` ble brukt for å undersøke veien mot målet.
+
+
+### Skjermbilde fra tracert-testen
+
+Jeg brukte kommandoen:
+
+`tracert -d 192.168.50.10`
+
+Testen viste SERVER01 som første og eneste hopp. Dette var forventet fordi CLIENT01 og SERVER01 var i samme lokale IP-nettverk.
+
+![Tracert fra CLIENT01 til SERVER01](images/fysisk-nettverk/12-tracert-client01-server01.png)
+
+Resultatet viste at trafikken kunne nå serveren direkte, uten å måtte gå gjennom ruteren for å komme til et annet subnett.
+
 
 
 ## 10. Systematisk fysisk feilsøking
