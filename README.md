@@ -377,3 +377,66 @@ Denne testen hjalp meg å forstå forskjellen mellom en IP-adresse og en port.
 IP-adressen brukes for å nå riktig enhet, mens portnummeret brukes for å nå en bestemt nettverkstjeneste på enheten.
 
 Jeg lærte også at Nmap og ping undersøker forskjellige ting. Ping tester kontakt med ICMP, mens Nmap kan undersøke tilgjengeligheten til bestemte TCP-porter.
+
+## 8. Wireshark – analyse av nettverkstrafikk
+
+### 8.1 Hvorfor jeg brukte Wireshark
+
+Etter at jeg hadde testet nettverket med ping og Nmap, ville jeg se hvilken trafikk som faktisk gikk mellom CLIENT01 og SERVER01.
+
+Jeg brukte Wireshark på CLIENT01 for å fange og undersøke nettverkspakker.
+
+Jeg valgte nettverkskortet som var koblet til labnettet, slik at jeg kunne se trafikken fra riktig tilkobling.
+
+### 8.2 ICMP – testing med ping
+
+Jeg startet en pakkefangst i Wireshark og brukte ping mot SERVER01:
+
+`ping 192.168.50.10`
+
+Deretter brukte jeg dette visningsfilteret i Wireshark:
+
+`icmp`
+
+Jeg undersøkte ICMP-trafikken mellom CLIENT01 og SERVER01.
+
+- CLIENT01: `192.168.50.100`
+- SERVER01: `192.168.50.10`
+
+Når en PC sender en ping, bruker den ICMP Echo Request. Hvis den andre enheten svarer, kommer det en ICMP Echo Reply tilbake.
+
+I denne testen kunne jeg undersøke ICMP-pakkene i Wireshark og sammenligne trafikken med ping-testen jeg hadde gjennomført.
+
+### 8.3 SMB – trafikk på TCP-port 445
+
+Etterpå undersøkte jeg trafikken mellom CLIENT01 og SERVER01 i forbindelse med fildeling.
+
+Jeg brukte dette visningsfilteret:
+
+`ip.addr == 192.168.50.10 && tcp.port == 445`
+
+Filteret viste TCP-trafikk som involverte SERVER01 og port 445.
+
+Jeg kunne se SMB2-relatert trafikk i Wireshark. Det passet med at jeg hadde brukt SMB til å åpne den delte mappen på serveren.
+
+Denne testen hjalp meg å forstå at fildeling ikke bare er en mappe som åpnes i Filutforsker. Klienten og serveren må også utveksle nettverkspakker for at tjenesten skal fungere.
+
+### 8.4 Forskjellen mellom Nmap og Wireshark
+
+Jeg brukte begge verktøyene, men til forskjellige oppgaver.
+
+**Nmap:** Jeg undersøkte hvilke TCP-porter som var tilgjengelige på SERVER01. Skanningen viste blant annet at port 445 var åpen.
+
+**Wireshark:** Jeg undersøkte pakkene som gikk over nettverket mens jeg testet kommunikasjon og fildeling.
+
+Nmap fortalte meg hvilke porter jeg kunne nå, mens Wireshark hjalp meg å se selve trafikken.
+
+### 8.5 Hva jeg lærte
+
+Jeg lærte at forskjellige nettverksverktøy gir forskjellig informasjon.
+
+Med ping kunne jeg teste om SERVER01 svarte på ICMP. Med Nmap kunne jeg undersøke bestemte TCP-porter. Med Wireshark kunne jeg se på pakkene og protokollene som ble brukt.
+
+Jeg fikk også bedre forståelse av hvordan IP-adresser, TCP-porter og nettverkstjenester henger sammen.
+
+Wireshark viste trafikk knyttet til SMB, men pakkefangsten alene beviste ikke at en testfil var skrevet og lagret på serveren. Det måtte kontrolleres med en egen filtest.
