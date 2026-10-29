@@ -369,88 +369,96 @@ Derfor skiller jeg mellom testene jeg faktisk gjennomførte, og det jeg ikke fik
 
 ### 6.1 Oppsett av fildeling
 
-I denne delen jobbet jeg med å bruke SERVER01 som en filserver. Målet var at CLIENT01 skulle kunne åpne en delt mappe på serveren over nettverket.
+Jeg brukte SERVER01 som en filserver i det fysiske nettverket.
 
-Jeg brukte Windows Server som en vanlig server uten Active Directory.
+Målet var at CLIENT01 skulle kunne åpne en delt mappe på serveren og bruke den over nettverket.
 
-Jeg opprettet en delt mappe med navnet `Felles` og jobbet med brukertilgang og delingsinnstillinger.
+Jeg opprettet en mappe med navnet `Felles` og jobbet med delingsinnstillinger og en lokal testbruker på Windows Server.
 
 Fra CLIENT01 brukte jeg denne adressen i Filutforsker:
 
 `\\192.168.50.10\Felles`
 
-Dette er en UNC-adresse. Den viser hvilken server jeg vil koble til, og hvilken delt mappe jeg vil åpne.
+Adressen viser IP-adressen til serveren og navnet på den delte mappen.
 
-### 6.2 Testing av tilkoblingen
+### 6.2 Kontroll av SMB-forbindelsen – 22.10.2026
 
-Jeg testet om CLIENT01 kunne få tilgang til den delte mappen på SERVER01.
+Jeg brukte PowerShell på CLIENT01 for å kontrollere forbindelsen:
 
-Jeg brukte også PowerShell-kommandoen:
+```powershell
+Get-SmbConnection
+```
 
-`Get-SmbConnection`
+Resultatet jeg dokumenterte i arbeidsloggen, viste:
 
-Kommandoen viste en aktiv SMB-forbindelse fra klienten. Det var nyttig fordi jeg kunne kontrollere at klienten faktisk hadde opprettet en forbindelse til serverens fildeling.
+- ServerName: `192.168.50.10`
+- ShareName: `Felles`
+- En aktiv SMB-forbindelse
 
-SMB bruker vanligvis TCP-port 445. Jeg undersøkte denne porten senere med Nmap.
+Jeg kunne også se at forbindelsen brukte påloggingsinformasjon knyttet til SERVER01.
 
-### 6.3 Brannmur og SMB
+Dette viste at klienten hadde en SMB-forbindelse til den delte mappen.
 
-Da jeg jobbet med serveren, lærte jeg at Windows Firewall kan påvirke hvilke nettverkstjenester klienten får kontakt med.
+### 6.3 Test av fildeling
 
-Etter reinstallasjonen hadde jeg en feil der serveradressen ikke svarte på ping. Jeg undersøkte Windows Firewall og aktiverte en regel for ICMPv4. Dette er dokumentert i kapittel 11.
+Jeg skrev i arbeidsloggen at jeg hadde opprettet og kontrollert en testfil på serveren.
 
-Denne endringen gjaldt ping, og jeg kan ikke bruke den som bevis på at SMB tidligere var blokkert.
+Jeg mangler likevel et eget skjermbilde som viser filen på SERVER01. Jeg har heller ikke et fullstendig bilde av de endelige Share- og NTFS-tillatelsene etter reinstallasjonen.
 
-Jeg testet SMB separat. `Get-SmbConnection` viste en aktiv forbindelse til den delte mappen `Felles`, og Nmap viste at TCP-port 445 var åpen.
+Derfor kan jeg dokumentere SMB-forbindelsen, men ikke hele filtesten med direkte skjermbildebevis.
 
-### 6.4 Testfil og dokumentasjon
+### 6.4 SMB og Windows Firewall
 
-Jeg jobbet også med å opprette en testfil gjennom den delte mappen.
+SMB brukes til fildeling i Windows og benytter vanligvis TCP-port 445.
 
-Jeg har dokumentasjon på SMB-forbindelsen, men jeg mangler et endelig skjermbilde som viser at testfilen ble opprettet fra CLIENT01 og kontrollert på SERVER01.
+Jeg undersøkte senere porten med Nmap og så at `445/tcp` var åpen.
 
-Jeg har heller ikke fullstendig dokumentasjon på de siste Share- og NTFS-tillatelsene etter at Windows Server ble installert på nytt.
+Etter reinstallasjonen hadde jeg også et problem med ping mot SERVER01. Jeg undersøkte Windows Firewall og aktiverte en regel for ICMPv4 Echo Requests.
 
-Derfor kan jeg vise at SMB-forbindelsen fungerte under arbeidet, men jeg kan ikke dokumentere hele den endelige filtesten.
+Dette var en egen ICMP-feil, som jeg har beskrevet i kapittel 11. Jeg har ikke grunnlag for å si at den samme regelen løste SMB-problemer.
 
 ### 6.5 Hva jeg lærte
 
-Gjennom denne oppgaven fikk jeg bedre forståelse av hvordan en klient bruker en tjeneste på en server.
+Jeg lærte hvordan en klient kan bruke en delt mappe på en Windows-server.
 
-Jeg lærte forskjellen mellom å ha kontakt med en server på nettverket og å faktisk få tilgang til en bestemt tjeneste.
+Jeg forstod også at det er forskjell på å ha nettverkskontakt med serveren, å ha en aktiv SMB-forbindelse og å ha tillatelse til å lese eller skrive filer.
 
-Jeg fikk også erfaring med å undersøke brannmurinnstillinger når en tjeneste ikke fungerer som forventet.
+En åpen TCP-port eller en aktiv forbindelse er ikke alene bevis på at alle filoperasjoner fungerer.
+
 
 ## 7. Nmap og nettverksporter
 
 ### 7.1 Hvorfor jeg brukte Nmap
 
-Etter at jeg hadde jobbet med fildeling på SERVER01, ville jeg undersøke hvilke nettverksporter klienten kunne nå på serveren.
+Etter at jeg hadde jobbet med fildeling, ville jeg undersøke hvilke TCP-porter jeg kunne nå på SERVER01.
 
-Jeg brukte Nmap på CLIENT01 for å teste tre TCP-porter som er relevante for Windows og fildeling.
+Jeg brukte Nmap fra CLIENT01 og begrenset skanningen til labserveren `192.168.50.10`.
 
-Jeg skannet bare min egen labserver med IP-adressen `192.168.50.10`.
+Før skanningen kontrollerte jeg at Nmap var installert ved å bruke:
 
-### 7.2 Kommandoen jeg brukte
+```powershell
+nmap --version
+```
 
-Jeg åpnet terminalen på CLIENT01 og kjørte:
+Jeg hadde Nmap 7.99 og Npcap 1.88 installert på klienten.
 
-```bash
+### 7.2 Portskanning – 22.10.2026
+
+Jeg kjørte denne kommandoen i PowerShell:
+
+```powershell
 nmap -sT -Pn -p 135,139,445 192.168.50.10
 ```
 
-Jeg brukte disse alternativene:
+Jeg brukte:
 
-- `-sT`: Gjennomfører en TCP Connect-skanning.
-- `-Pn`: Hopper over vertsgjenkjenning og forsøker å skanne målet direkte.
-- `-p 135,139,445`: Velger hvilke porter som skal skannes.
-- `192.168.50.10`: IP-adressen til SERVER01.
+- `-sT` for TCP Connect-skanning.
+- `-Pn` for å hoppe over vanlig vertoppdagelse.
+- `-p` for å velge bare portene 135, 139 og 445.
 
-Jeg valgte disse portene fordi de er knyttet til Windows-nettverkstjenester.
+Skanningen ble gjennomført klokken 10:57 og tok 3,59 sekunder.
 
-### 7.3 Resultat fra Nmap
-
-Dette var resultatene jeg fikk:
+### 7.3 Resultatet jeg fikk
 
 | Port | State | Service |
 |---|---|---|
@@ -458,39 +466,29 @@ Dette var resultatene jeg fikk:
 | 139/tcp | filtered | netbios-ssn |
 | 445/tcp | open | microsoft-ds |
 
-**Port 135 – open**
+Port 135 var åpen. Denne porten brukes vanligvis av Microsoft RPC.
 
-Port 135 er knyttet til Microsoft RPC. Nmap viste at TCP-porten var åpen på SERVER01.
+Port 139 ble vist som `filtered`. Det betyr at Nmap ikke fikk nok informasjon til å avgjøre om porten var åpen eller lukket. Filtrering i nettverket eller en brannmur kan være en forklaring.
 
-**Port 139 – filtered**
+Port 445 var åpen. Dette var spesielt relevant fordi jeg hadde brukt SMB til å koble CLIENT01 til mappen `Felles`.
 
-Port 139 brukes blant annet i eldre Windows-nettverk for NetBIOS Session Service.
+### 7.4 Hvordan jeg tolket resultatet
 
-Nmap viste `filtered`. Det betyr at skanningen ikke kunne avgjøre om porten var åpen eller lukket, fordi trafikken eller svarene ble filtrert. En brannmur kan være en mulig årsak, men jeg undersøkte ikke årsaken nærmere i denne testen.
+Nmap viste også `Host is up`, men jeg brukte `-Pn`, som hopper over vanlig vertoppdagelse. Derfor brukte jeg ikke denne meldingen som bevis på en egen vellykket ping-test.
 
-**Port 445 – open**
+Tjenestenavnene i Nmap-resultatet var standard navn knyttet til portnumrene. Jeg brukte ikke `-sV` for å undersøke hvilken programvareversjon som kjørte på portene.
 
-Port 445 brukes til SMB, blant annet for fildeling i Windows.
+Jeg lærte at Nmap kan vise om en TCP-port er tilgjengelig, men at det ikke automatisk betyr at jeg har tilgang til tjenesten.
 
-Nmap viste at porten var åpen. Det var relevant for prosjektet fordi jeg hadde jobbet med å koble CLIENT01 til den delte mappen på SERVER01.
-
-### 7.4 Hva resultatene fortalte meg
-
-Jeg fant ut at SERVER01 hadde åpne TCP-porter på 135 og 445, mens port 139 ble rapportert som filtrert.
-
-Det viktigste resultatet for meg var port 445, siden jeg brukte SMB til fildeling.
-
-Samtidig lærte jeg at en åpen port ikke betyr at jeg automatisk har tilgang til en delt mappe. Brukeren må også ha riktige tillatelser.
-
-Nmap viste hvilke porter som svarte på skanningen, men ikke om jeg kunne lese eller skrive filer i mappen.
+For eksempel viste Nmap at port 445 var åpen, men dette beviste ikke hvilke Share- eller NTFS-tillatelser brukeren hadde.
 
 ### 7.5 Hva jeg lærte
 
-Denne testen hjalp meg å forstå forskjellen mellom en IP-adresse og en port.
+Jeg fikk bedre forståelse av sammenhengen mellom IP-adresser, porter og nettverkstjenester.
 
-IP-adressen brukes for å nå riktig enhet, mens portnummeret brukes for å nå en bestemt nettverkstjeneste på enheten.
+Jeg lærte også forskjellen mellom `open` og `filtered`, og hvorfor det er viktig å tolke resultatene riktig.
 
-Jeg lærte også at Nmap og ping undersøker forskjellige ting. Ping tester kontakt med ICMP, mens Nmap kan undersøke tilgjengeligheten til bestemte TCP-porter.
+Jeg gjorde ingen endringer i brannmurinnstillingene som følge av denne skanningen.
 
 
 ## 8. Wireshark – analyse av nettverkstrafikk
