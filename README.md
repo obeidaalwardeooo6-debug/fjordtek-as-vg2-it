@@ -611,3 +611,131 @@ Dette gjorde det lettere for meg å forstå forskjellen mellom kommunikasjon i s
 Jeg forstod også bedre hvorfor det er viktig å vite om to enheter ligger i samme subnett før jeg begynner med feilsøking.
 
 `ping` hjalp meg å teste om enheten svarte, mens `tracert` ble brukt for å undersøke veien mot målet.
+
+
+## 10. Systematisk fysisk feilsøking
+
+### 10.1 Kontrollert nettverksfeil – 22.10.2026
+
+I denne oppgaven skulle jeg lage en kontrollert feil i det fysiske nettverket og undersøke hvordan jeg kunne finne og rette problemet.
+
+Jeg valgte å koble fra hele USB-Ethernet-adapteren på CLIENT01. Jeg lot Ethernet-kabelen være koblet til adapteren, men tok selve adapteren ut av laptopen.
+
+Jeg gjorde ingen endringer på R1 eller SERVER01.
+
+### 10.2 Kontroll før feilen
+
+Før jeg koblet fra adapteren, testet jeg forbindelsen til SERVER01.
+
+Jeg kjørte:
+
+```powershell
+ping 192.168.50.10
+```
+
+Resultatet var fire sendte og fire mottatte pakker, med 0 % pakketap.
+
+Deretter kontrollerte jeg nettverksadapteren:
+
+```powershell
+Get-NetAdapter -Name "Ethernet 2" | Format-List Name,Status,LinkSpeed
+```
+
+Resultatet viste:
+
+- Name: `Ethernet 2`
+- Status: `Up`
+- LinkSpeed: `1 Gbps`
+
+Da visste jeg at nettverksadapteren var aktiv, og at klienten kunne kommunisere med serveren.
+
+### 10.3 Jeg laget feilen
+
+Jeg tok USB-Ethernet-adapteren ut av CLIENT01.
+
+Etterpå kjørte jeg den samme kommandoen med `Get-NetAdapter`.
+
+Denne gangen fikk jeg feilmeldingen `ObjectNotFound`. Windows fant ikke lenger en nettverksadapter med navnet `Ethernet 2`.
+
+Jeg testet også forbindelsen til SERVER01 på nytt:
+
+```powershell
+ping 192.168.50.10
+```
+
+Resultatet var fire meldinger med:
+
+`PING: transmit failed. General failure.`
+
+Ingen av de fire ping-forsøkene lyktes, og Windows rapporterte 100 % pakketap.
+
+### 10.4 Hvordan jeg fant årsaken
+
+Jeg ville undersøke om problemet var knyttet til nettverksadapteren.
+
+Jeg kjørte:
+
+```powershell
+Get-NetAdapter | Format-Table Name,Status,InterfaceDescription -AutoSize
+```
+
+Jeg så at `Ethernet 2` manglet i listen.
+
+Samtidig kunne jeg se andre nettverksadaptere, blant annet VMware VMnet1 og VMnet8. Disse var virtuelle adaptere og ga ikke automatisk forbindelse til det fysiske labnettet.
+
+Dette hjalp meg å forstå at problemet ikke nødvendigvis lå på SERVER01. CLIENT01 manglet nettverksadapteren som ble brukt til forbindelsen.
+
+### 10.5 Hvordan jeg løste problemet
+
+Jeg satte USB-Ethernet-adapteren tilbake i laptopen.
+
+Deretter kjørte jeg:
+
+```powershell
+Get-NetAdapter | Format-Table Name,Status,LinkSpeed -AutoSize
+```
+
+Nå var `Ethernet 2` synlig igjen med status `Up` og linkhastighet `1 Gbps`.
+
+Jeg brukte også `ipconfig` for å kontrollere nettverksinnstillingene.
+
+Resultatet viste:
+
+- IP-adresse: `192.168.50.100`
+- Subnettmaske: `255.255.255.0`
+- Gateway: `192.168.50.1`
+
+Til slutt testet jeg forbindelsen til SERVER01 på nytt:
+
+```powershell
+ping 192.168.50.10
+```
+
+Jeg fikk fire svar fra serveren, med 0 % pakketap. Responstiden var 1 ms, og svarene hadde TTL 128.
+
+Forbindelsen fungerte igjen.
+
+### 10.6 Oppsummering av feilsøkingen
+
+| Steg | Hva jeg fant ut |
+|---|---|
+| Symptom | CLIENT01 mistet kontakten med SERVER01 |
+| Hypotese | Problemet kunne skyldes en manglende nettverksadapter |
+| Test | Jeg brukte `Get-NetAdapter` og `ping` |
+| Funn | Ethernet 2 var ikke lenger tilgjengelig i Windows |
+| Løsning | Jeg koblet USB-Ethernet-adapteren til igjen |
+| Kontroll | Adapteren ble aktiv, IP-innstillingene var riktige, og ping fungerte igjen |
+
+### 10.7 Hva jeg lærte
+
+Gjennom denne testen lærte jeg at jeg bør kontrollere den fysiske forbindelsen før jeg begynner å endre IP-adresser eller andre innstillinger.
+
+Jeg lærte også forskjellen mellom å koble fra en Ethernet-kabel og å fjerne hele USB-Ethernet-adapteren. Når adapteren fjernes, kan den forsvinne helt fra listen over nettverkskort i Windows.
+
+En linkhastighet på 1 Gbps betyr heller ikke at jeg har målt faktisk dataoverføring på 1 Gbps. Det viser hastigheten på nettverksforbindelsen.
+
+Feilmeldingen `General failure` fortalte meg at klienten ikke klarte å sende ping på vanlig måte. Den beviste ikke at det var noe feil med SERVER01.
+
+Det viktigste jeg lærte, var å teste én ting om gangen og kontrollere resultatet etter at jeg hadde gjort en endring.
+
+Jeg dokumenterte feilsøkingen selv. Jeg har ikke dokumentert at en annen deltaker gjennomførte feilsøkingen, slik oppgaven også foreslo.
