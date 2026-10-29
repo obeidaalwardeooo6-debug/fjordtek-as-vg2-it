@@ -2607,6 +2607,31 @@ Jeg skiller mellom tester som fungerte, og tester der jeg mangler fullstendig do
 | K7 – Testing og dokumentasjon | Kontrollere README, tester, bilder, `.pkt` og GitHub Projects | Arbeidet er dokumentert og kan gjennomgås av læreren | Testresultatene er skrevet inn. Jeg skal fortsatt flytte de originale bildene og Packet Tracer-filen til det nye repositoryet og fullføre GitHub Projects | Pågår |
 | K8 – DHCP-fornyelse på CLIENT01 | `ipconfig /release`, `ipconfig /renew`, `ipconfig /all` og ping | Klienten får riktige innstillinger og kan fortsatt nå SERVER01 | DHCP-fornyelse og senere vellykket ping er registrert i arbeidsloggen. Hele testforløpet er ikke dokumentert samlet | Bestått ifølge arbeidsloggen, med begrenset direktebevis |
 
+
+### 21.2.1 Bevisoversikt for krav K1–K8
+
+Jeg har samlet lenker til de viktigste testbildene for å gjøre det enklere å kontrollere kravene.
+
+Noen krav har direkte skjermbildebevis. Andre er dokumentert i arbeidsloggen, men mangler et fullstendig skjermbilde av selve testen.
+
+| Krav | Dokumentasjon | Begrensning |
+|---|---|---|
+| K1 – Kommunikasjon mellom CLIENT01 og SERVER01 | [Wireshark – ICMP](images/fysisk-nettverk/10-wireshark-icmp-client01-server01.png), [Tracert til SERVER01](images/fysisk-nettverk/12-tracert-client01-server01.png) | Bildene viser ICMP-kommunikasjon og tracert, men ikke den opprinnelige ping-statistikken i Command Prompt. |
+| K2 – Fast IP på fysisk SERVER01 | Beskrevet i kapittel 4 og arbeidsloggen | Mangler fullstendig bilde av den endelige statiske IP-konfigurasjonen etter reinstallasjon av Windows Server. |
+| K3 – DHCP på fysisk CLIENT01 | DHCP-resultatet med `192.168.50.100` er beskrevet i kapittel 4 og arbeidsloggen | Mangler eget sluttbilde av `ipconfig /all` fra den fysiske klienten. |
+| K4 – SMB-fildeling | [Nmap – TCP-porter](images/fysisk-nettverk/09-nmap-portskanning-server01.png), [Wireshark – SMB](images/fysisk-nettverk/11-wireshark-smb-tcp445.png) | Dokumenterer åpen TCP-port 445 og SMB-trafikk, men ikke fullstendig filtest eller alle tillatelser. |
+| K5 – Ruting mellom LAN | [Tracert ADMIN–SALG](images/packet-tracer/08-tracert-pc-admin-til-pc-salg.png), [Tracert SALG–SERVER01](images/packet-tracer/07-tracert-pc-salg-til-server01.png), [Rutetabell på R1-HQ](images/packet-tracer/26-r1-hq-show-ip-route.png) | Dokumenterer de valgte rutene og forbindelsene, ikke alle mulige forbindelser i nettverket. |
+| K6 – DHCP, DNS og HTTP | [DHCP på PC-ADMIN](images/packet-tracer/03-pc-admin-dhcp.png), [DHCP på PC-ADMIN2](images/packet-tracer/10-pc-admin2-dhcp.png), [DNS A Record](images/packet-tracer/24-server01-dns-a-record.png), [HTTP-tjenester](images/packet-tracer/25-server01-http-https-tjenester.png), [HTTP i Simulation Mode](images/packet-tracer/16-simulation-http-request-og-svar.png) | Viser konfigurasjon og testet trafikk. Ikke alle tjenester er testet fra alle klientene. |
+| K7 – Testing og dokumentasjon | [Packet Tracer-prosjektfil](packet-tracer/FjordTek-AS-Ferdig.pkt), README og bildene i repositoryet | Endelig kontroll av GitHub Projects, filtilgang og innlevering gjenstår. |
+| K8 – DHCP-fornyelse | Beskrevet i kapittel 4, 12 og arbeidsloggen | Ingen samlet skjermbildeserie som viser `release`, `renew` og etterfølgende ping-test. |
+
+Lenkene viser de dokumenterte resultatene fra prosjektet. Jeg bruker ikke et bilde som bevis på mer enn det faktisk viser.
+
+Krav K2, K3 og K8 har begrenset direkte skjermbildedokumentasjon. Jeg har derfor beholdt forklaringene fra arbeidsloggen og gjort det tydelig hva som mangler.
+
+Jeg vil kontrollere at alle lenkene fungerer før innlevering.
+
+
 ### 21.3 Krav som ikke er fullstendig dokumentert
 
 Jeg fikk gjennomført mange av testene, men jeg mangler noen direkte skjermbilder fra det fysiske nettverket.
