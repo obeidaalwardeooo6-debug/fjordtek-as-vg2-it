@@ -1046,3 +1046,158 @@ Jeg fikk også bedre forståelse av forskjellen mellom et fysisk nettverk og et 
 I den fysiske laben var klienten og serveren i samme subnett. I FjordTek AS måtte jeg konfigurere ruting for at klienter i forskjellige nettverk skulle kunne kommunisere.
 
 Dette gjorde det lettere for meg å forstå hvorfor både adresseplan, gateway og rutetabeller må være riktige.
+
+
+## 14. VLAN og Inter-VLAN Routing
+
+### 14.1 Hvorfor jeg brukte VLAN
+
+I FjordTek AS skulle jeg dele nettverket inn i flere avdelinger.
+
+Jeg brukte VLAN for å skille nettverkene logisk, slik at Administrasjon, Support og Servere kunne ha hvert sitt IP-nettverk.
+
+På hovedkontoret brukte jeg disse VLAN-ene:
+
+| VLAN | Navn | Nettverk | Gateway |
+|---|---|---|---|
+| 10 | ADMIN | 192.168.10.0/24 | 192.168.10.1 |
+| 20 | SUPPORT | 192.168.20.0/24 | 192.168.20.1 |
+| 30 | SERVERS | 192.168.30.0/24 | 192.168.30.1 |
+
+Salgsavdelingen hadde et eget nettverk, `192.168.40.0/24`, med `192.168.40.1` på R2-SALG som gateway.
+
+Jeg lærte at VLAN kan brukes til å dele opp et nettverk uten at hver avdeling trenger en egen ruter.
+
+### 14.2 Konfigurering av SW-CORE-HQ
+
+Jeg brukte en Cisco 3560 Layer 3-switch som kjerneswitch på hovedkontoret.
+
+På SW-CORE-HQ brukte jeg VLAN-grensesnitt, også kalt SVI (Switched Virtual Interface), som gateway for nettverkene.
+
+Jeg kontrollerte grensesnittene med:
+
+```text
+show ip interface brief
+```
+
+Resultatet viste:
+
+| Interface | IP-adresse | Status | Protocol |
+|---|---|---|---|
+| Vlan10 | 192.168.10.1 | up | up |
+| Vlan20 | 192.168.20.1 | up | up |
+| Vlan30 | 192.168.30.1 | up | up |
+| GigabitEthernet0/1 | 10.0.0.6 | up | up |
+
+Dette viste at de tre VLAN-grensesnittene var aktive. GigabitEthernet0/1 ble brukt til forbindelsen mot R1-HQ.
+
+Jeg brukte Layer 3-funksjonen på kjerneswitchen for å kunne rute mellom VLAN-ene.
+
+### 14.3 Tilkobling av tilgangsswitchene
+
+Jeg koblet tilgangsswitchene til SW-CORE-HQ slik:
+
+| Port på SW-CORE-HQ | Tilkoblet enhet | Port på tilgangsswitch |
+|---|---|---|
+| Fa0/1 | SW-ADMIN | Fa0/1 |
+| Fa0/2 | SW-SUPPORT | Fa0/1 |
+| Fa0/3 | SW-SERVER | Fa0/1 |
+| Gi0/1 | R1-HQ | Gi0/0 |
+
+På denne måten kunne jeg samle nettverkene på hovedkontoret gjennom kjerneswitchen.
+
+### 14.4 Kontroll av VLAN 10 på SW-ADMIN
+
+Da jeg la til den ekstra klienten PC-ADMIN2, måtte jeg kontrollere at switchporten var plassert i riktig VLAN.
+
+På SW-ADMIN konfigurerte jeg FastEthernet0/3 som en accessport i VLAN 10.
+
+Dette er kommandoene fra testen min:
+
+```text
+enable
+configure terminal
+interface fastEthernet 0/3
+switchport mode access
+switchport access vlan 10
+no shutdown
+end
+show vlan brief
+```
+
+Resultatet fra `show vlan brief` viste:
+
+```text
+10    ADMIN    active    Fa0/1, Fa0/2, Fa0/3
+```
+
+Da kunne jeg se at portene Fa0/1, Fa0/2 og Fa0/3 tilhørte VLAN 10.
+
+Jeg lærte at en accessport plasserer den tilkoblede enheten i et bestemt VLAN.
+
+### 14.5 Inter-VLAN Routing
+
+Klientene i de forskjellige avdelingene brukte ulike IP-nettverk.
+
+For eksempel hadde Support nettverket `192.168.20.0/24`, mens serveren lå i `192.168.30.0/24`.
+
+Disse nettverkene kunne ikke kommunisere direkte gjennom vanlig Layer 2-switching. Derfor brukte jeg SW-CORE-HQ til å utføre ruting mellom VLAN-ene.
+
+Jeg kontrollerte rutetabellen på SW-CORE-HQ med:
+
+```text
+show ip route
+```
+
+Tabellen viste blant annet:
+
+```text
+C 192.168.10.0/24 is directly connected, Vlan10
+C 192.168.20.0/24 is directly connected, Vlan20
+C 192.168.30.0/24 is directly connected, Vlan30
+S* 0.0.0.0/0 via 10.0.0.5
+```
+
+`C` betyr at nettverket er direkte tilkoblet rutingsenheten.
+
+Den statiske standardruten pekte mot R1-HQ på `10.0.0.5`.
+
+Dette gjorde at kjerneswitchen hadde en rute videre for trafikk til nettverk som ikke var direkte tilkoblet.
+
+### 14.6 Testing av kommunikasjon mellom VLAN
+
+Jeg testet blant annet kommunikasjonen fra PC-SUPPORT til SERVER01.
+
+PC-SUPPORT hadde adressen `192.168.20.100`, mens SERVER01 hadde `192.168.30.10`.
+
+Fra PC-SUPPORT kjørte jeg:
+
+```text
+ping 192.168.30.10
+```
+
+Resultatet var:
+
+- Pakker sendt: 4
+- Pakker mottatt: 4
+- Pakketap: 0 %
+
+Jeg fikk svar fra serveren selv om klienten og serveren var i forskjellige subnett.
+
+Dette viste at IP-kommunikasjonen mellom de to nettverkene fungerte under testen.
+
+Jeg hadde også to klienter i VLAN 10, PC-ADMIN og PC-ADMIN2. Dem brukte jeg senere til å undersøke ARP og ICMP i Simulation Mode.
+
+### 14.7 Hva jeg lærte
+
+Jeg lærte forskjellen mellom switching og ruting.
+
+Når to klienter ligger i samme VLAN og subnett, kan trafikken gå gjennom Layer 2-switching uten å gå via en ruter.
+
+Når en klient skal kommunisere med et annet subnett, må trafikken sendes til en gateway som kan utføre IP-ruting.
+
+Jeg fikk også bedre forståelse av hvorfor VLAN-grensesnittene på SW-CORE-HQ måtte ha riktige IP-adresser, og hvorfor rutetabellen var viktig.
+
+VLAN gir logisk oppdeling av nettverket, men det betyr ikke automatisk at all trafikk mellom avdelingene er blokkert. Da jeg aktiverte ruting mellom VLAN-ene, kunne de kommunisere. Hvis jeg ville begrense denne trafikken, måtte jeg konfigurere egne tilgangsregler.
+
+I denne delen dokumenterte jeg VLAN-oppsettet, rutetabellen og en vellykket test mellom Support og Servere. Jeg har ikke dokumentert en egen test av alle mulige forbindelser mellom VLAN-ene.
