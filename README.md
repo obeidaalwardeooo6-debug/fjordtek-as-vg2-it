@@ -142,6 +142,38 @@ Jeg har tatt bilder av den fysiske oppkoblingen, blant annet:
 
 Bildene viser hvordan utstyret var koblet opp. Selve IP-kommunikasjonen dokumenterer jeg gjennom de separate nettverkstestene.
 
+
+### 3.1 Bilder av det fysiske nettverket
+
+Jeg dokumenterte oppkoblingen av det fysiske nettverket med bilder. Bildene viser utstyret jeg brukte, hvordan enhetene var koblet sammen, og hvordan arbeidsplassen var satt opp.
+
+**Nettverkstopologi**
+
+![Topologi for det fysiske nettverket](images/fysisk-nettverk/01-fysisk-nettverkstopologi.png)
+
+**R1 – Ruter og kabeltilkoblinger**
+
+![R1 med kabeltilkoblinger](images/fysisk-nettverk/02-r1-ruter-tilkoblinger.jpg)
+
+**SW1 – Switchporter og linklys**
+
+![SW1 med porter og linklys](images/fysisk-nettverk/03-sw1-porter-og-linklys.jpg)
+
+**R1 – Statuslys**
+
+![Statuslys på R1](images/fysisk-nettverk/04-r1-ruter-statuslys.jpg)
+
+**SERVER01 og CLIENT01 – Arbeidsplass**
+
+![Arbeidsplass med server og klient](images/fysisk-nettverk/05-server-klient-arbeidsplass.jpg)
+
+**Oversikt over nettverksutstyret**
+
+![Oversikt over fysisk nettverksutstyr](images/fysisk-nettverk/06-nettverksutstyr-oversikt.jpg)
+
+Bildene dokumenterer den fysiske oppkoblingen. For å kontrollere at kommunikasjonen fungerte, brukte jeg egne tester med blant annet ping, Nmap og Wireshark. Disse resultatene er dokumentert i de neste kapitlene.
+
+
 ## 4. IP-adresseplan og konfigurering
 
 ### 4.1 Adresseplan
